@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Painel — Millenium Veículos</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1a56db">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+  :root{--primary:#1a56db;--button:#16a34a;--text:#1f2937;--muted:#6b7280;--line:#e5e7eb;--soft:#f4f6fb;--danger:#dc2626;}
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;color:var(--text);background:var(--soft);}
+  input,select,textarea,button{font-family:inherit;font-size:16px;}
+  img{display:block;max-width:100%;}
+
+  /* LOGIN */
+  #login{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;
+    background:linear-gradient(135deg,#1a56db,#0b3fa8);}
+  .login-card{background:#fff;border-radius:18px;padding:32px 26px;max-width:380px;width:100%;box-shadow:0 12px 40px rgba(0,0,0,.25);}
+  .login-card h1{font-size:22px;text-align:center;margin-bottom:4px;}
+  .login-card p{text-align:center;color:var(--muted);font-size:14px;margin-bottom:22px;}
+  .lbl{display:block;font-size:13px;font-weight:600;margin:12px 0 5px;}
+  .inp{width:100%;padding:12px;border:1.5px solid var(--line);border-radius:10px;}
+  .btn{border:none;border-radius:10px;padding:13px;font-weight:700;cursor:pointer;width:100%;color:#fff;background:var(--primary);}
+  .btn:active{transform:scale(.99);}
+  .err{color:var(--danger);font-size:13px;text-align:center;margin-top:12px;min-height:18px;}
+
+  /* APP */
+  #app{display:none;max-width:920px;margin:0 auto;padding-bottom:80px;}
+  .topbar{position:sticky;top:0;z-index:20;background:#fff;border-bottom:1px solid var(--line);
+    display:flex;align-items:center;justify-content:space-between;padding:12px 16px;}
+  .topbar b{font-size:16px;}
+  .topbar .logout{color:var(--danger);background:none;border:none;font-size:13px;font-weight:600;width:auto;cursor:pointer;}
+  .tabs{display:flex;gap:6px;overflow-x:auto;padding:10px 12px;background:#fff;border-bottom:1px solid var(--line);
+    position:sticky;top:49px;z-index:19;}
+  .tab{white-space:nowrap;padding:8px 14px;border-radius:20px;background:var(--soft);border:none;font-size:13px;font-weight:600;
+    color:var(--muted);cursor:pointer;}
+  .tab.on{background:var(--primary);color:#fff;}
+  .page{display:none;padding:16px;}
+  .page.on{display:block;}
+  .panel{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:16px;}
+  .panel h3{font-size:16px;margin-bottom:14px;}
+  .row{margin-bottom:14px;}
+  .row label{display:block;font-size:13px;font-weight:600;margin-bottom:5px;}
+  .row input,.row select,.row textarea{width:100%;padding:11px;border:1.5px solid var(--line);border-radius:10px;}
+  .row textarea{min-height:80px;resize:vertical;}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .color-row{display:flex;align-items:center;gap:10px;}
+  .color-row input[type=color]{width:46px;height:40px;padding:2px;border-radius:8px;border:1px solid var(--line);}
+  .save-btn{background:var(--button);}
+  .btn-sm{width:auto;padding:9px 14px;font-size:13px;border-radius:9px;}
+  .muted{color:var(--muted);font-size:13px;}
+  .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#0f172a;color:#fff;padding:12px 20px;
+    border-radius:10px;font-size:14px;z-index:100;opacity:0;transition:opacity .2s;pointer-events:none;}
+  .toast.show{opacity:1;}
+
+  /* CARS LIST */
+  .add-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+  .car-item{display:flex;gap:12px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px;margin-bottom:10px;}
+  .car-item img,.car-item .noimg{width:64px;height:64px;border-radius:9px;object-fit:cover;background:var(--soft);flex:0 0 auto;}
+  .car-item .noimg{display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--muted);}
+  .car-item .info{flex:1;min-width:0;}
+  .car-item .info b{font-size:15px;}
+  .car-item .info .sub{font-size:12px;color:var(--muted);}
+  .pill{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;margin-top:3px;}
+  .pill.available{background:#dcfce7;color:#166534;} .pill.sold{background:#fee2e2;color:#991b1b;} .pill.hidden{background:#e5e7eb;color:#374151;}
+  .car-item .acts{display:flex;flex-direction:column;gap:5px;}
+  .car-item .acts button{width:auto;padding:6px 10px;font-size:12px;border-radius:7px;}
+  .edit-b{background:var(--primary);} .del-b{background:var(--danger);}
+
+  /* PHOTOS */
+  .photos{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px;}
+  .photo{position:relative;width:84px;height:84px;border-radius:9px;overflow:hidden;border:1px solid var(--line);}
+  .photo img{width:100%;height:100%;object-fit:cover;}
+  .photo .x{position:absolute;top:2px;right:2px;background:rgba(0,0,0,.6);color:#fff;border:none;border-radius:50%;
+    width:20px;height:20px;font-size:12px;cursor:pointer;padding:0;line-height:1;}
+  .photo .main-tag{position:absolute;bottom:0;left:0;right:0;background:var(--primary);color:#fff;font-size:9px;text-align:center;padding:1px;}
+  .add-photo{width:84px;height:84px;border:2px dashed var(--line);border-radius:9px;display:flex;align-items:center;justify-content:center;
+    color:var(--muted);font-size:26px;cursor:pointer;background:var(--soft);}
+
+  /* MODAL */
+  .ov{position:fixed;inset:0;background:rgba(15,23,42,.6);z-index:60;display:none;align-items:flex-start;justify-content:center;
+    padding:16px;overflow:auto;}
+  .ov.show{display:flex;}
+  .sheet{background:#fff;border-radius:16px;max-width:560px;width:100%;padding:20px;margin:16px 0;}
+  .sheet h3{margin-bottom:14px;}
+  .sheet-actions{display:flex;gap:10px;margin-top:8px;}
+  .btn-ghost{background:#e5e7eb;color:var(--text);}
+</style>
+</head>
+<body>
+
+  <!-- LOGIN -->
+  <div id="login">
+    <div class="login-card">
+      <h1>🔐 Painel Millenium</h1>
+      <p>Acesso do administrador</p>
+      <label class="lbl">Email</label>
+      <input class="inp" id="email" type="email" autocomplete="username" placeholder="seu@email.com">
+      <label class="lbl">Senha</label>
+      <input class="inp" id="password" type="password" autocomplete="current-password" placeholder="••••••••">
+      <div style="height:16px;"></div>
+      <button class="btn" id="loginBtn">Entrar</button>
+      <div class="err" id="loginErr"></div>
+    </div>
+  </div>
+
+  <!-- APP -->
+  <div id="app">
+    <div class="topbar"><b>Painel Millenium</b><button class="logout" id="logoutBtn">Sair</button></div>
+    <div class="tabs">
+      <button class="tab on" data-p="estoque">🚗 Estoque</button>
+      <button class="tab" data-p="aparencia">🎨 Aparência</button>
+      <button class="tab" data-p="info">🏪 Informações</button>
+      <button class="tab" data-p="financiamento">📊 Financiamento</button>
+      <button class="tab" data-p="geral">⚙️ Geral</button>
+    </div>
+
+    <!-- ESTOQUE -->
+    <div class="page on" id="p-estoque">
+      <div class="add-bar">
+        <b>Veículos</b>
+        <button class="btn btn-sm" onclick="openCar()">+ Adicionar carro</button>
+      </div>
+      <div id="carsList"><p class="muted">Carregando...</p></div>
+    </div>
+
+    <!-- APARÊNCIA -->
+    <div class="page" id="p-aparencia">
+      <div class="panel">
+        <h3>Logomarca e ícone</h3>
+        <div class="row"><label>Logo (imagem)</label><div id="logoPrev"></div>
+          <input type="file" accept="image/*" id="logoFile"></div>
+        <div class="row"><label>Favicon (ícone da aba)</label><input type="file" accept="image/*" id="faviconFile"></div>
+      </div>
+      <div class="panel">
+        <h3>Cores</h3>
+        <div class="row color-row"><input type="color" data-k="color_primary"><label>Cor principal</label></div>
+        <div class="row color-row"><input type="color" data-k="color_secondary"><label>Cor secundária</label></div>
+        <div class="row color-row"><input type="color" data-k="color_button"><label>Cor dos botões</label></div>
+        <div class="row color-row"><input type="color" data-k="color_background"><label>Fundo</label></div>
+        <div class="row color-row"><input type="color" data-k="color_text"><label>Texto</label></div>
+      </div>
+      <div class="panel">
+        <h3>Tipografia</h3>
+        <div class="two">
+          <div class="row"><label>Fonte dos títulos</label><select data-k="font_title" id="fontTitle"></select></div>
+          <div class="row"><label>Fonte do texto</label><select data-k="font_body" id="fontBody"></select></div>
+        </div>
+        <p class="muted">Fontes do Google Fonts.</p>
+      </div>
+      <div class="panel">
+        <h3>Banner</h3>
+        <div class="row"><label>Imagem do banner</label><input type="file" accept="image/*" id="bannerFile"><div id="bannerPrev" style="margin-top:8px;"></div></div>
+        <div class="row"><label>Texto do banner</label><input data-k="banner_text"></div>
+        <div class="two">
+          <div class="row"><label>Texto do botão</label><input data-k="banner_button_text"></div>
+          <div class="row"><label>Link do botão</label><input data-k="banner_button_link"></div>
+        </div>
+      </div>
+      <button class="btn save-btn" onclick="saveSettings()">Salvar aparência</button>
+    </div>
+
+    <!-- INFORMAÇÕES -->
+    <div class="page" id="p-info">
+      <div class="panel">
+        <h3>Informações da loja</h3>
+        <div class="row"><label>Nome da loja</label><input data-k="store_name"></div>
+        <div class="row"><label>Endereço (aparece no mapa e rodapé)</label><input data-k="address"></div>
+        <div class="two">
+          <div class="row"><label>WhatsApp (com DDD)</label><input data-k="whatsapp" placeholder="5531988650010"></div>
+          <div class="row"><label>Telefone</label><input data-k="phone"></div>
+        </div>
+        <div class="row"><label>Horário de funcionamento</label><input data-k="opening_hours" placeholder="Seg a Sex 8h-18h, Sáb 8h-13h"></div>
+        <div class="two">
+          <div class="row"><label>Instagram (link)</label><input data-k="instagram"></div>
+          <div class="row"><label>Facebook (link)</label><input data-k="facebook"></div>
+        </div>
+        <div class="row"><label>Sobre a loja</label><textarea data-k="about_text"></textarea></div>
+        <div class="row"><label>Texto do rodapé</label><input data-k="footer_text"></div>
+      </div>
+      <button class="btn save-btn" onclick="saveSettings()">Salvar informações</button>
+    </div>
+
+    <!-- FINANCIAMENTO -->
+    <div class="page" id="p-financiamento">
+      <div class="panel">
+        <h3>Simulador de financiamento</h3>
+        <div class="row"><label>Taxa de juros (% ao mês)</label><input type="number" step="0.01" data-k="interest_rate"></div>
+        <div class="row"><label>Opções de parcelas (separadas por vírgula)</label><input data-k="installment_options" placeholder="12,24,36,48,60"></div>
+        <div class="row"><label>Observação da simulação</label><textarea data-k="finance_note"></textarea></div>
+      </div>
+      <button class="btn save-btn" onclick="saveSettings()">Salvar financiamento</button>
+    </div>
+
+    <!-- GERAL -->
+    <div class="page" id="p-geral">
+      <div class="panel">
+        <h3>Configurações gerais</h3>
+        <div class="row"><label>Mostrar mapa no site?</label>
+          <select data-k="show_map"><option value="true">Sim</option><option value="false">Não</option></select></div>
+        <div class="row"><label>Link do mapa (Google Maps embed) — opcional</label><input data-k="map_embed_url" placeholder="Deixe vazio para usar o endereço automaticamente"></div>
+        <div class="row"><label>Mensagem padrão do WhatsApp</label><input data-k="whatsapp_default_message"></div>
+      </div>
+      <button class="btn save-btn" onclick="saveSettings()">Salvar geral</button>
+    </div>
+  </div>
+
+  <!-- MODAL CARRO -->
+  <div class="ov" id="carOv">
+    <div class="sheet">
+      <h3 id="carTitle">Adicionar carro</h3>
+      <input type="hidden" id="carId">
+      <div class="two">
+        <div class="row"><label>Marca *</label><input id="c_brand"></div>
+        <div class="row"><label>Modelo *</label><input id="c_model"></div>
+      </div>
+      <div class="two">
+        <div class="row"><label>Versão do motor</label><input id="c_engine" placeholder="1.0, 2.0 Turbo"></div>
+        <div class="row"><label>Preço (R$)</label><input id="c_price" type="number"></div>
+      </div>
+      <div class="two">
+        <div class="row"><label>Ano fabricação</label><input id="c_yearfab" type="number"></div>
+        <div class="row"><label>Ano modelo</label><input id="c_yearmodel" type="number"></div>
+      </div>
+      <div class="two">
+        <div class="row"><label>Combustível</label><select id="c_fuel"><option>Flex</option><option>Gasolina</option><option>Diesel</option><option>Elétrico</option><option>Híbrido</option></select></div>
+        <div class="row"><label>Câmbio</label><select id="c_transmission"><option>Manual</option><option>Automático</option></select></div>
+      </div>
+      <div class="two">
+        <div class="row"><label>Quilometragem</label><input id="c_mileage" type="number"></div>
+        <div class="row"><label>Cor</label><input id="c_color"></div>
+      </div>
+      <div class="row"><label>Descrição</label><textarea id="c_desc"></textarea></div>
+      <div class="two">
+        <div class="row"><label>Status</label><select id="c_status"><option value="available">Disponível</option><option value="sold">Vendido</option><option value="hidden">Oculto</option></select></div>
+        <div class="row"><label>Destaque?</label><select id="c_featured"><option value="false">Não</option><option value="true">Sim</option></select></div>
+      </div>
+      <div class="row"><label>Fotos</label><div class="photos" id="c_photos"></div>
+        <p class="muted" id="c_photoHint">Salve o carro para adicionar fotos.</p></div>
+      <div class="sheet-actions">
+        <button class="btn btn-ghost" onclick="closeCar()">Cancelar</button>
+        <button class="btn save-btn" id="carSaveBtn" onclick="saveCar()">Salvar</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+  <input type="file" id="photoInput" accept="image/*" multiple style="display:none;">
+
+  <script src="config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+  (function(){
+    const CFG=window.MILLENIUM_CONFIG;
+    const sb=window.supabase.createClient(CFG.SUPABASE_URL,CFG.SUPABASE_KEY);
+    const el=id=>document.getElementById(id);
+    let settings={}, cars=[], editingCarId=null;
+
+    const toast=(m)=>{const t=el('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);};
+    const FONTS=['Inter','Poppins','Roboto','Montserrat','Open Sans','Lato','Oswald','Raleway','Nunito','Playfair Display'];
+
+    // ---------- AUTH ----------
+    el('loginBtn').onclick=async()=>{
+      el('loginErr').textContent='';
+      const email=el('email').value.trim(), password=el('password').value;
+      if(!email||!password){el('loginErr').textContent='Preencha email e senha.';return;}
+      el('loginBtn').textContent='Entrando...';
+      const {error}=await sb.auth.signInWithPassword({email,password});
+      el('loginBtn').textContent='Entrar';
+      if(error){el('loginErr').textContent='Email ou senha incorretos.';return;}
+      showApp();
+    };
+    el('password').addEventListener('keydown',e=>{if(e.key==='Enter')el('loginBtn').click();});
+    el('logoutBtn').onclick=async()=>{await sb.auth.signOut();location.reload();};
+
+    async function checkSession(){
+      const {data}=await sb.auth.getSession();
+      if(data.session) showApp();
+    }
+    async function showApp(){
+      el('login').style.display='none'; el('app').style.display='block';
+      // popular selects de fonte
+      const ft=el('fontTitle'), fb=el('fontBody');
+      ft.innerHTML=FONTS.map(f=>`<option>${f}</option>`).join('');
+      fb.innerHTML=FONTS.map(f=>`<option>${f}</option>`).join('');
+      await loadSettings(); await loadCars();
+    }
+
+    // ---------- TABS ----------
+    document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
+      document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
+      document.querySelectorAll('.page').forEach(x=>x.classList.remove('on'));
+      t.classList.add('on'); el('p-'+t.dataset.p).classList.add('on');
+    });
+
+    // ---------- SETTINGS ----------
+    async function loadSettings(){
+      const {data}=await sb.from('site_settings').select('*').eq('id',1).single();
+      settings=data||{};
+      document.querySelectorAll('[data-k]').forEach(inp=>{
+        const k=inp.dataset.k; let v=settings[k];
+        if(inp.type==='color'){ inp.value=v||'#000000'; }
+        else if(k==='show_map'){ inp.value=String(v!==false); }
+        else { inp.value=(v==null?'':v); }
+      });
+      if(settings.logo_url) el('logoPrev').innerHTML=`<img src="${settings.logo_url}" style="height:50px;margin-bottom:6px;">`;
+      if(settings.banner_image_url) el('bannerPrev').innerHTML=`<img src="${settings.banner_image_url}" style="height:70px;border-radius:8px;">`;
+    }
+    window.saveSettings=async()=>{
+      const patch={};
+      document.querySelectorAll('[data-k]').forEach(inp=>{
+        const k=inp.dataset.k; let v=inp.value;
+        if(k==='show_map') v=(v==='true');
+        if(k==='interest_rate') v=parseFloat(v)||0;
+        patch[k]=v;
+      });
+      patch.updated_at=new Date().toISOString();
+      const {error}=await sb.from('site_settings').update(patch).eq('id',1);
+      if(error){toast('Erro ao salvar: '+error.message);return;}
+      toast('Salvo com sucesso ✓'); await loadSettings();
+    };
+
+    // Upload de logo / favicon / banner
+    async function uploadTo(file,prefix){
+      const ext=(file.name.split('.').pop()||'png').toLowerCase();
+      const path=`${prefix}/${Date.now()}.${ext}`;
+      const {error}=await sb.storage.from(CFG.STORAGE_BUCKET).upload(path,file,{upsert:true});
+      if(error){toast('Erro no upload: '+error.message);return null;}
+      return sb.storage.from(CFG.STORAGE_BUCKET).getPublicUrl(path).data.publicUrl;
+    }
+    el('logoFile').onchange=async e=>{const f=e.target.files[0];if(!f)return;toast('Enviando...');const u=await uploadTo(f,'brand');if(u){await sb.from('site_settings').update({logo_url:u}).eq('id',1);toast('Logo atualizada ✓');loadSettings();}};
+    el('faviconFile').onchange=async e=>{const f=e.target.files[0];if(!f)return;toast('Enviando...');const u=await uploadTo(f,'brand');if(u){await sb.from('site_settings').update({favicon_url:u}).eq('id',1);toast('Favicon atualizado ✓');loadSettings();}};
+    el('bannerFile').onchange=async e=>{const f=e.target.files[0];if(!f)return;toast('Enviando...');const u=await uploadTo(f,'banner');if(u){await sb.from('site_settings').update({banner_image_url:u}).eq('id',1);toast('Banner atualizado ✓');loadSettings();}};
+
+    // ---------- CARS ----------
+    async function loadCars(){
+      const {data}=await sb.from('cars').select('*, car_photos(*)')
+        .order('featured',{ascending:false}).order('sort_order',{ascending:true}).order('created_at',{ascending:false});
+      cars=data||[]; renderCars();
+    }
+    function mainPhoto(c){const p=(c.car_photos||[]).slice().sort((a,b)=>(b.is_main-a.is_main)||(a.sort_order-b.sort_order));return p[0];}
+    function renderCars(){
+      const box=el('carsList');
+      if(!cars.length){box.innerHTML='<p class="muted">Nenhum carro cadastrado. Toque em "+ Adicionar carro".</p>';return;}
+      box.innerHTML=cars.map(c=>{
+        const mp=mainPhoto(c);
+        const stMap={available:'Disponível',sold:'Vendido',hidden:'Oculto'};
+        return `<div class="car-item">
+          ${mp?`<img src="${mp.url}">`:'<div class="noimg">sem foto</div>'}
+          <div class="info">
+            <b>${c.brand} ${c.model}</b>
+            <div class="sub">${c.year_model||''} • ${c.price?('R$ '+Number(c.price).toLocaleString('pt-BR')):'sem preço'}${c.featured?' • ⭐':''}</div>
+            <span class="pill ${c.status}">${stMap[c.status]||c.status}</span>
+          </div>
+          <div class="acts">
+            <button class="btn edit-b" onclick="openCar('${c.id}')">Editar</button>
+            <button class="btn del-b" onclick="delCar('${c.id}')">Excluir</button>
+          </div>
+        </div>`;
+      }).join('');
+    }
+    window.openCar=(id)=>{
+      editingCarId=id||null;
+      const c=id?cars.find(x=>x.id===id):{};
+      el('carTitle').textContent=id?'Editar carro':'Adicionar carro';
+      el('carId').value=id||'';
+      el('c_brand').value=c.brand||''; el('c_model').value=c.model||'';
+      el('c_engine').value=c.engine_version||''; el('c_price').value=c.price||'';
+      el('c_yearfab').value=c.year_fab||''; el('c_yearmodel').value=c.year_model||'';
+      el('c_fuel').value=c.fuel||'Flex'; el('c_transmission').value=c.transmission||'Manual';
+      el('c_mileage').value=c.mileage||''; el('c_color').value=c.color||'';
+      el('c_desc').value=c.description||''; el('c_status').value=c.status||'available';
+      el('c_featured').value=String(c.featured||false);
+      renderPhotos(c);
+      el('carOv').classList.add('show');
+    };
+    window.closeCar=()=>el('carOv').classList.remove('show');
+    window.saveCar=async()=>{
+      const rec={
+        brand:el('c_brand').value.trim(), model:el('c_model').value.trim(),
+        engine_version:el('c_engine').value.trim(), price:parseFloat(el('c_price').value)||0,
+        year_fab:parseInt(el('c_yearfab').value)||null, year_model:parseInt(el('c_yearmodel').value)||null,
+        fuel:el('c_fuel').value, transmission:el('c_transmission').value,
+        mileage:parseInt(el('c_mileage').value)||0, color:el('c_color').value.trim(),
+        description:el('c_desc').value.trim(), status:el('c_status').value, featured:el('c_featured').value==='true'
+      };
+      if(!rec.brand||!rec.model){toast('Preencha marca e modelo.');return;}
+      el('carSaveBtn').textContent='Salvando...';
+      if(editingCarId){
+        const {error}=await sb.from('cars').update(rec).eq('id',editingCarId);
+        if(error){toast('Erro: '+error.message);el('carSaveBtn').textContent='Salvar';return;}
+        toast('Carro atualizado ✓');
+      }else{
+        const {data,error}=await sb.from('cars').insert(rec).select().single();
+        if(error){toast('Erro: '+error.message);el('carSaveBtn').textContent='Salvar';return;}
+        editingCarId=data.id; el('carId').value=data.id;
+        toast('Carro criado ✓ agora adicione fotos');
+      }
+      el('carSaveBtn').textContent='Salvar';
+      await loadCars();
+      const c=cars.find(x=>x.id===editingCarId); if(c) renderPhotos(c);
+    };
+    window.delCar=async(id)=>{
+      if(!confirm('Excluir este carro? Esta ação não pode ser desfeita.'))return;
+      const {error}=await sb.from('cars').delete().eq('id',id);
+      if(error){toast('Erro: '+error.message);return;}
+      toast('Carro excluído'); loadCars();
+    };
+
+    // ---------- PHOTOS ----------
+    function renderPhotos(c){
+      const box=el('c_photos');
+      if(!editingCarId){el('c_photoHint').style.display='block';box.innerHTML='';return;}
+      el('c_photoHint').style.display='none';
+      const photos=(c&&c.car_photos?c.car_photos:[]).slice().sort((a,b)=>(b.is_main-a.is_main)||(a.sort_order-b.sort_order));
+      box.innerHTML=photos.map(p=>`<div class="photo">
+        <img src="${p.url}" onclick="setMain('${p.id}')">
+        ${p.is_main?'<div class="main-tag">CAPA</div>':''}
+        <button class="x" onclick="delPhoto('${p.id}')">×</button>
+      </div>`).join('')+`<div class="add-photo" onclick="pickPhotos()">+</div>`;
+    }
+    window.pickPhotos=()=>el('photoInput').click();
+    el('photoInput').onchange=async e=>{
+      const files=[...e.target.files]; e.target.value='';
+      if(!editingCarId||!files.length)return;
+      toast('Enviando fotos...');
+      const c=cars.find(x=>x.id===editingCarId);
+      const hasMain=(c.car_photos||[]).some(p=>p.is_main);
+      let order=(c.car_photos||[]).length;
+      for(let i=0;i<files.length;i++){
+        const url=await uploadTo(files[i],'cars/'+editingCarId);
+        if(url){ await sb.from('car_photos').insert({car_id:editingCarId,url,sort_order:order++,is_main:(!hasMain&&i===0)}); }
+      }
+      toast('Fotos adicionadas ✓');
+      await loadCars(); const nc=cars.find(x=>x.id===editingCarId); renderPhotos(nc);
+    };
+    window.delPhoto=async(id)=>{
+      const {error}=await sb.from('car_photos').delete().eq('id',id);
+      if(error){toast('Erro: '+error.message);return;}
+      await loadCars(); renderPhotos(cars.find(x=>x.id===editingCarId));
+    };
+    window.setMain=async(id)=>{
+      await sb.from('car_photos').update({is_main:false}).eq('car_id',editingCarId);
+      await sb.from('car_photos').update({is_main:true}).eq('id',id);
+      toast('Foto de capa definida ✓');
+      await loadCars(); renderPhotos(cars.find(x=>x.id===editingCarId));
+    };
+
+    // fechar modal fora
+    el('carOv').addEventListener('click',e=>{if(e.target===el('carOv'))closeCar();});
+
+    // Service worker (PWA)
+    if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch(()=>{});}
+
+    checkSession();
+  })();
+  </script>
+</body>
+</html>

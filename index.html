@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Millenium Veículos</title>
+<meta name="description" content="Millenium Veículos — seminovos e usados em Ipatinga/MG. Confira nosso estoque.">
+<link rel="icon" id="favicon" href="data:,">
+<style>
+  :root{
+    --primary:#1a56db; --secondary:#0b3fa8; --bg:#ffffff;
+    --button:#16a34a; --text:#1f2937; --font-title:'Poppins',sans-serif; --font-body:'Inter',sans-serif;
+    --muted:#6b7280; --card:#ffffff; --line:#e5e7eb; --soft:#f4f6fb;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:var(--font-body);color:var(--text);background:var(--bg);line-height:1.6;}
+  img{display:block;max-width:100%;}
+  a{color:inherit;text-decoration:none;}
+  .container{max-width:1180px;margin:0 auto;padding:0 20px;}
+  h1,h2,h3{font-family:var(--font-title);font-weight:700;line-height:1.2;}
+
+  /* ---------- HEADER ---------- */
+  header.site{position:sticky;top:0;z-index:50;background:var(--bg);border-bottom:1px solid var(--line);
+    box-shadow:0 1px 6px rgba(0,0,0,.04);}
+  .head-inner{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:16px;padding:12px 20px;max-width:1180px;margin:0 auto;}
+  .head-left{font-size:13px;color:var(--muted);display:flex;flex-direction:column;gap:2px;}
+  .head-logo{justify-self:center;display:flex;align-items:center;gap:10px;}
+  .head-logo img{height:52px;width:auto;object-fit:contain;}
+  .head-logo .name{font-family:var(--font-title);font-weight:800;font-size:20px;color:var(--primary);white-space:nowrap;}
+  .head-right{justify-self:end;}
+  .btn-wa-top{background:var(--button);color:#fff;padding:9px 16px;border-radius:8px;font-weight:600;font-size:14px;
+    display:inline-flex;align-items:center;gap:7px;}
+  @media(max-width:760px){
+    .head-inner{grid-template-columns:1fr auto;gap:8px;}
+    .head-left{display:none;}
+    .head-logo{justify-self:start;}
+    .head-logo img{height:40px;}
+    .head-logo .name{font-size:16px;}
+  }
+
+  /* ---------- BANNER ---------- */
+  .banner{position:relative;min-height:340px;display:flex;align-items:center;justify-content:center;text-align:center;
+    background:linear-gradient(135deg,var(--primary),var(--secondary));color:#fff;overflow:hidden;}
+  .banner img.bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.35;}
+  .banner .b-content{position:relative;z-index:2;padding:40px 20px;max-width:760px;}
+  .banner h2{font-size:38px;margin-bottom:14px;text-shadow:0 2px 12px rgba(0,0,0,.25);}
+  .banner .b-btn{display:inline-block;margin-top:8px;background:var(--button);color:#fff;padding:13px 28px;
+    border-radius:10px;font-weight:700;font-size:16px;}
+  @media(max-width:760px){.banner h2{font-size:26px;} .banner{min-height:240px;}}
+
+  /* ---------- ESTOQUE ---------- */
+  .section{padding:56px 0;}
+  .section-title{text-align:center;margin-bottom:8px;font-size:30px;}
+  .section-sub{text-align:center;color:var(--muted);margin-bottom:36px;}
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
+  @media(max-width:960px){.grid{grid-template-columns:repeat(2,1fr);}}
+  @media(max-width:600px){.grid{grid-template-columns:1fr;}}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden;
+    box-shadow:0 2px 10px rgba(0,0,0,.05);transition:transform .15s,box-shadow .15s;}
+  .card:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,.10);}
+  .carousel{position:relative;aspect-ratio:1/1;background:var(--soft);cursor:pointer;}
+  .carousel .slides{display:flex;height:100%;transition:transform .35s ease;}
+  .carousel .slide{min-width:100%;height:100%;}
+  .carousel .slide img{width:100%;height:100%;object-fit:cover;}
+  .carousel .noimg{display:flex;align-items:center;justify-content:center;height:100%;color:var(--muted);font-size:14px;}
+  .carousel .nav{position:absolute;top:50%;transform:translateY(-50%);width:34px;height:34px;border-radius:50%;
+    background:rgba(0,0,0,.45);color:#fff;border:none;display:flex;align-items:center;justify-content:center;
+    cursor:pointer;font-size:18px;z-index:3;}
+  .carousel .nav.prev{left:8px;} .carousel .nav.next{right:8px;}
+  .carousel .dots{position:absolute;bottom:8px;left:0;right:0;display:flex;justify-content:center;gap:5px;z-index:3;}
+  .carousel .dots span{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.6);}
+  .carousel .dots span.on{background:#fff;}
+  .badge{position:absolute;top:10px;left:10px;background:var(--primary);color:#fff;font-size:11px;font-weight:700;
+    padding:4px 9px;border-radius:20px;z-index:3;letter-spacing:.03em;}
+  .card-body{padding:16px;}
+  .card-body h3{font-size:18px;margin-bottom:4px;}
+  .card-meta{color:var(--muted);font-size:13px;margin-bottom:10px;}
+  .card-price{font-family:var(--font-title);font-weight:800;font-size:22px;color:var(--primary);margin-bottom:14px;}
+  .card-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+  .btn{border:none;border-radius:9px;padding:10px 8px;font-weight:700;font-size:13px;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;gap:6px;font-family:var(--font-body);}
+  .btn-wa{background:var(--button);color:#fff;}
+  .btn-fin{background:var(--primary);color:#fff;}
+  .btn:hover{filter:brightness(.95);}
+
+  /* ---------- MODAL ---------- */
+  .overlay{position:fixed;inset:0;background:rgba(15,23,42,.6);z-index:100;display:none;align-items:center;
+    justify-content:center;padding:16px;}
+  .overlay.show{display:flex;}
+  .modal{background:var(--bg);border-radius:18px;max-width:860px;width:100%;max-height:92vh;overflow:auto;position:relative;}
+  .modal-close{position:absolute;top:12px;right:12px;width:36px;height:36px;border-radius:50%;background:rgba(0,0,0,.5);
+    color:#fff;border:none;font-size:20px;cursor:pointer;z-index:5;}
+  .modal-grid{display:grid;grid-template-columns:1fr 1fr;}
+  @media(max-width:720px){.modal-grid{grid-template-columns:1fr;}}
+  .modal-media{background:var(--soft);}
+  .modal-media .carousel{aspect-ratio:1/1;cursor:default;}
+  .modal-info{padding:26px;}
+  .modal-info h3{font-size:24px;margin-bottom:6px;}
+  .modal-info .price{font-family:var(--font-title);font-weight:800;font-size:26px;color:var(--primary);margin:10px 0 18px;}
+  .specs{display:grid;grid-template-columns:1fr 1fr;gap:12px 16px;margin-bottom:20px;}
+  .spec{font-size:14px;} .spec .k{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.04em;}
+  .spec .v{font-weight:600;}
+  .modal-desc{font-size:14px;color:#374151;margin-bottom:20px;white-space:pre-wrap;}
+  .modal-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+
+  /* ---------- SIMULADOR ---------- */
+  .sim{padding:26px;max-width:460px;width:100%;}
+  .sim h3{font-size:22px;margin-bottom:4px;}
+  .sim .car-ref{color:var(--muted);font-size:14px;margin-bottom:18px;}
+  .field{margin-bottom:16px;}
+  .field label{display:block;font-size:13px;font-weight:600;margin-bottom:6px;}
+  .field input,.field select{width:100%;padding:11px 12px;border:1.5px solid var(--line);border-radius:9px;font-size:15px;
+    font-family:var(--font-body);}
+  .sim-result{background:var(--soft);border-radius:12px;padding:18px;text-align:center;margin:6px 0 16px;}
+  .sim-result .lbl{font-size:13px;color:var(--muted);}
+  .sim-result .val{font-family:var(--font-title);font-weight:800;font-size:30px;color:var(--primary);}
+  .sim-result .det{font-size:12px;color:var(--muted);margin-top:6px;}
+  .sim-note{font-size:11px;color:var(--muted);text-align:center;margin-top:10px;}
+
+  /* ---------- MAPA / RODAPÉ ---------- */
+  .map-wrap{width:100%;height:380px;background:var(--soft);}
+  .map-wrap iframe{width:100%;height:100%;border:0;}
+  .map-fallback{display:flex;align-items:center;justify-content:center;height:100%;color:var(--muted);text-align:center;padding:20px;}
+  footer.site{background:#0f172a;color:#cbd5e1;padding:40px 0 26px;}
+  .foot-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:26px;}
+  @media(max-width:760px){.foot-grid{grid-template-columns:1fr;gap:18px;}}
+  footer.site h4{color:#fff;font-size:15px;margin-bottom:10px;}
+  footer.site a,footer.site p{color:#cbd5e1;font-size:14px;margin-bottom:6px;display:block;}
+  .foot-bottom{border-top:1px solid #1e293b;margin-top:26px;padding-top:16px;text-align:center;font-size:12px;color:#64748b;}
+  .loading{text-align:center;padding:40px;color:var(--muted);}
+</style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="site">
+    <div class="head-inner">
+      <div class="head-left" id="headLeft"></div>
+      <a href="#" class="head-logo" id="headLogo">
+        <span class="name" id="logoName">Millenium Veículos</span>
+      </a>
+      <div class="head-right">
+        <a class="btn-wa-top" id="headWa" target="_blank" rel="noopener">
+          <span>💬</span> WhatsApp
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- BANNER -->
+  <section class="banner" id="banner">
+    <div class="b-content">
+      <h2 id="bannerText">Bem-vindo à Millenium Veículos</h2>
+      <a class="b-btn" id="bannerBtn" href="#estoque">Ver estoque</a>
+    </div>
+  </section>
+
+  <!-- ESTOQUE -->
+  <section class="section" id="estoque">
+    <div class="container">
+      <h2 class="section-title">Nosso Estoque</h2>
+      <p class="section-sub">Confira os veículos disponíveis</p>
+      <div class="grid" id="grid">
+        <div class="loading">Carregando estoque...</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MAPA -->
+  <section id="mapSection">
+    <div class="map-wrap" id="mapWrap">
+      <div class="map-fallback">Mapa da loja</div>
+    </div>
+  </section>
+
+  <!-- RODAPÉ -->
+  <footer class="site">
+    <div class="container">
+      <div class="foot-grid">
+        <div>
+          <h4 id="footName">Millenium Veículos</h4>
+          <p id="footAbout"></p>
+        </div>
+        <div>
+          <h4>Contato</h4>
+          <p id="footAddr"></p>
+          <a id="footWa" target="_blank" rel="noopener"></a>
+          <p id="footHours"></p>
+        </div>
+        <div>
+          <h4>Redes</h4>
+          <a id="footIg" target="_blank" rel="noopener" style="display:none;">Instagram</a>
+          <a id="footFb" target="_blank" rel="noopener" style="display:none;">Facebook</a>
+        </div>
+      </div>
+      <div class="foot-bottom" id="footBottom">© Millenium Veículos</div>
+    </div>
+  </footer>
+
+  <!-- MODAL DETALHES -->
+  <div class="overlay" id="detailOverlay">
+    <div class="modal">
+      <button class="modal-close" onclick="closeDetail()">×</button>
+      <div class="modal-grid">
+        <div class="modal-media" id="detailMedia"></div>
+        <div class="modal-info" id="detailInfo"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL SIMULADOR -->
+  <div class="overlay" id="simOverlay">
+    <div class="modal sim">
+      <button class="modal-close" onclick="closeSim()" style="background:#94a3b8;">×</button>
+      <h3>Simular Financiamento</h3>
+      <div class="car-ref" id="simCarRef"></div>
+      <div class="field">
+        <label>Valor do veículo</label>
+        <input type="text" id="simPrice" readonly>
+      </div>
+      <div class="field">
+        <label>Valor de entrada (R$)</label>
+        <input type="number" id="simEntrada" min="0" step="500" placeholder="Ex: 10000">
+      </div>
+      <div class="field">
+        <label>Número de parcelas</label>
+        <select id="simParcelas"></select>
+      </div>
+      <div class="sim-result">
+        <div class="lbl">Parcela mensal aproximada</div>
+        <div class="val" id="simVal">R$ —</div>
+        <div class="det" id="simDet"></div>
+      </div>
+      <button class="btn btn-wa" style="width:100%;padding:13px;" id="simWa">💬 Falar no WhatsApp sobre esta simulação</button>
+      <div class="sim-note" id="simNote"></div>
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+  (function(){
+    const CFG = window.MILLENIUM_CONFIG;
+    const sb = window.supabase.createClient(CFG.SUPABASE_URL, CFG.SUPABASE_KEY);
+
+    let settings = {};
+    let cars = [];
+
+    const money = n => (Number(n)||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL',minimumFractionDigits:0,maximumFractionDigits:0});
+    const money2 = n => (Number(n)||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL',minimumFractionDigits:2,maximumFractionDigits:2});
+    const el = id => document.getElementById(id);
+
+    // ---------- TEMA / CONFIGURAÇÕES ----------
+    function applySettings(s){
+      settings = s || {};
+      const r = document.documentElement.style;
+      if(s.color_primary) r.setProperty('--primary', s.color_primary);
+      if(s.color_secondary) r.setProperty('--secondary', s.color_secondary);
+      if(s.color_background) r.setProperty('--bg', s.color_background);
+      if(s.color_button) r.setProperty('--button', s.color_button);
+      if(s.color_text) r.setProperty('--text', s.color_text);
+      // Fontes Google
+      loadFont(s.font_title); loadFont(s.font_body);
+      if(s.font_title) r.setProperty('--font-title', `'${s.font_title}',sans-serif`);
+      if(s.font_body) r.setProperty('--font-body', `'${s.font_body}',sans-serif`);
+
+      document.title = s.store_name || 'Millenium Veículos';
+      el('logoName').textContent = s.store_name || 'Millenium Veículos';
+      el('footName').textContent = s.store_name || 'Millenium Veículos';
+      // Logo
+      if(s.logo_url){
+        el('headLogo').innerHTML = `<img src="${s.logo_url}" alt="${s.store_name||''}">`;
+      }
+      if(s.favicon_url){ el('favicon').href = s.favicon_url; }
+      // Header contato
+      const parts=[];
+      if(s.address) parts.push(`📍 ${s.address}`);
+      if(s.opening_hours) parts.push(`🕒 ${s.opening_hours}`);
+      el('headLeft').innerHTML = parts.map(p=>`<span>${p}</span>`).join('');
+      // Banner
+      el('bannerText').textContent = s.banner_text || 'Bem-vindo';
+      el('bannerBtn').textContent = s.banner_button_text || 'Ver estoque';
+      el('bannerBtn').setAttribute('href', s.banner_button_link || '#estoque');
+      if(s.banner_image_url){
+        const img=document.createElement('img'); img.className='bg'; img.src=s.banner_image_url;
+        el('banner').prepend(img);
+      }
+      // WhatsApp
+      const wa = waLink('');
+      el('headWa').href = wa;
+      const fwa = el('footWa'); fwa.href = wa; fwa.textContent = s.whatsapp ? '💬 '+formatPhone(s.whatsapp) : '';
+      // Rodapé
+      el('footAbout').textContent = s.about_text || '';
+      el('footAddr').textContent = s.address ? '📍 '+s.address : '';
+      el('footHours').textContent = s.opening_hours ? '🕒 '+s.opening_hours : '';
+      if(s.instagram){ const a=el('footIg'); a.style.display='block'; a.href=s.instagram; }
+      if(s.facebook){ const a=el('footFb'); a.style.display='block'; a.href=s.facebook; }
+      el('footBottom').textContent = (s.footer_text) || ('© '+(s.store_name||'Millenium Veículos')+' — '+new Date().getFullYear());
+      // Mapa
+      if(s.show_map === false){ el('mapSection').style.display='none'; }
+      else if(s.map_embed_url){ el('mapWrap').innerHTML = `<iframe src="${s.map_embed_url}" loading="lazy" allowfullscreen></iframe>`; }
+      else if(s.address){
+        const q = encodeURIComponent(s.address);
+        el('mapWrap').innerHTML = `<iframe src="https://www.google.com/maps?q=${q}&output=embed" loading="lazy"></iframe>`;
+      }
+    }
+    const loadedFonts = {};
+    function loadFont(name){
+      if(!name || loadedFonts[name]) return; loadedFonts[name]=1;
+      const l=document.createElement('link'); l.rel='stylesheet';
+      l.href=`https://fonts.googleapis.com/css2?family=${name.replace(/ /g,'+')}:wght@400;600;700;800&display=swap`;
+      document.head.appendChild(l);
+    }
+    function formatPhone(w){ const d=(w||'').replace(/\D/g,''); if(d.length>=12){return `(${d.slice(2,4)}) ${d.slice(4,9)}-${d.slice(9)}`;} return w; }
+    function waLink(extra){
+      const num=(settings.whatsapp||'').replace(/\D/g,'');
+      const base=settings.whatsapp_default_message||'Olá! Tenho interesse.';
+      const txt=encodeURIComponent(base+(extra?(' '+extra):''));
+      return `https://wa.me/${num}?text=${txt}`;
+    }
+
+    // ---------- CARROSSEL ----------
+    function carouselHTML(photos, id){
+      if(!photos || !photos.length){ return `<div class="carousel"><div class="noimg">Sem foto</div></div>`; }
+      const slides = photos.map(p=>`<div class="slide"><img src="${p.url}" alt=""></div>`).join('');
+      const dots = photos.map((_,i)=>`<span class="${i===0?'on':''}"></span>`).join('');
+      const nav = photos.length>1 ? `
+        <button class="nav prev" onclick="event.stopPropagation();slide('${id}',-1)">‹</button>
+        <button class="nav next" onclick="event.stopPropagation();slide('${id}',1)">›</button>
+        <div class="dots">${dots}</div>` : '';
+      return `<div class="carousel" data-idx="0" data-count="${photos.length}" id="${id}">
+        <div class="slides">${slides}</div>${nav}</div>`;
+    }
+    window.slide=function(id,dir){
+      const c=document.getElementById(id); if(!c)return;
+      let idx=parseInt(c.dataset.idx)||0; const n=parseInt(c.dataset.count)||1;
+      idx=(idx+dir+n)%n; c.dataset.idx=idx;
+      c.querySelector('.slides').style.transform=`translateX(-${idx*100}%)`;
+      const dots=c.querySelectorAll('.dots span'); dots.forEach((d,i)=>d.classList.toggle('on',i===idx));
+    };
+
+    // ---------- ESTOQUE ----------
+    function photosOf(car){
+      const ph=(car.car_photos||[]).slice().sort((a,b)=>(b.is_main-a.is_main)||(a.sort_order-b.sort_order));
+      return ph;
+    }
+    function renderCars(){
+      const grid=el('grid');
+      if(!cars.length){ grid.innerHTML=`<div class="loading">Nenhum veículo disponível no momento.</div>`; return; }
+      grid.innerHTML = cars.map((c,i)=>{
+        const ph=photosOf(c);
+        const meta=[c.year_model||c.year_fab, c.mileage!=null?c.mileage.toLocaleString('pt-BR')+' km':null, c.fuel, c.transmission].filter(Boolean).join(' • ');
+        return `<div class="card">
+          ${c.featured?'<span class="badge">DESTAQUE</span>':''}
+          <div onclick="openDetail('${c.id}')">${carouselHTML(ph,'car'+i)}</div>
+          <div class="card-body">
+            <h3>${c.brand} ${c.model}</h3>
+            <div class="card-meta">${meta}</div>
+            <div class="card-price">${c.price?money(c.price):'Consulte'}</div>
+            <div class="card-btns">
+              <a class="btn btn-wa" href="${waLink(carRef(c))}" target="_blank" rel="noopener">💬 WhatsApp</a>
+              <button class="btn btn-fin" onclick="openSim('${c.id}')">📊 Financiar</button>
+            </div>
+          </div>
+        </div>`;
+      }).join('');
+    }
+    function carRef(c){ return `${c.brand} ${c.model} ${c.year_model||''} — ${c.price?money(c.price):''}`.trim(); }
+
+    // ---------- MODAL DETALHES ----------
+    window.openDetail=function(id){
+      const c=cars.find(x=>x.id===id); if(!c)return;
+      const ph=photosOf(c);
+      el('detailMedia').innerHTML=carouselHTML(ph,'dcar');
+      const specs=[
+        ['Marca',c.brand],['Modelo',c.model],['Versão',c.engine_version],
+        ['Ano',(c.year_fab&&c.year_model)?`${c.year_fab}/${c.year_model}`:(c.year_model||c.year_fab)],
+        ['Combustível',c.fuel],['Câmbio',c.transmission],
+        ['Quilometragem',c.mileage!=null?c.mileage.toLocaleString('pt-BR')+' km':null],['Cor',c.color]
+      ].filter(x=>x[1]);
+      el('detailInfo').innerHTML=`
+        <h3>${c.brand} ${c.model}</h3>
+        <div class="price">${c.price?money(c.price):'Consulte'}</div>
+        <div class="specs">${specs.map(s=>`<div class="spec"><div class="k">${s[0]}</div><div class="v">${s[1]}</div></div>`).join('')}</div>
+        ${c.description?`<div class="modal-desc">${c.description}</div>`:''}
+        <div class="modal-btns">
+          <a class="btn btn-wa" href="${waLink(carRef(c))}" target="_blank" rel="noopener">💬 WhatsApp</a>
+          <button class="btn btn-fin" onclick="openSim('${c.id}')">📊 Simular Financiamento</button>
+        </div>`;
+      el('detailOverlay').classList.add('show');
+    };
+    window.closeDetail=()=>el('detailOverlay').classList.remove('show');
+
+    // ---------- SIMULADOR ----------
+    let simCar=null;
+    function parcelaOptions(){
+      const opts=(settings.installment_options||'12,24,36,48,60').split(',').map(x=>x.trim()).filter(Boolean);
+      el('simParcelas').innerHTML=opts.map(o=>`<option value="${o}">${o}x</option>`).join('');
+    }
+    window.openSim=function(id){
+      simCar=cars.find(x=>x.id===id); if(!simCar)return;
+      closeDetail();
+      parcelaOptions();
+      el('simCarRef').textContent=`${simCar.brand} ${simCar.model} ${simCar.year_model||''}`;
+      el('simPrice').value=money2(simCar.price);
+      el('simEntrada').value='';
+      el('simNote').textContent=settings.finance_note||'';
+      calcSim();
+      el('simOverlay').classList.add('show');
+    };
+    window.closeSim=()=>el('simOverlay').classList.remove('show');
+    function calcSim(){
+      if(!simCar)return;
+      const price=Number(simCar.price)||0;
+      const entrada=Number(el('simEntrada').value)||0;
+      const n=parseInt(el('simParcelas').value)||12;
+      const rate=(Number(settings.interest_rate)||2.2)/100;
+      const financed=Math.max(price-entrada,0);
+      let pmt=0;
+      if(financed>0){ pmt = rate>0 ? financed*rate/(1-Math.pow(1+rate,-n)) : financed/n; }
+      el('simVal').textContent=money2(pmt);
+      el('simDet').textContent=`${n}x • entrada ${money(entrada)} • financiado ${money(financed)} • taxa ${(rate*100).toString().replace('.',',')}% a.m.`;
+      const extra=`Simulação: ${simCar.brand} ${simCar.model}, entrada ${money(entrada)}, ${n}x de ${money2(pmt)}.`;
+      el('simWa').onclick=()=>window.open(waLink(extra),'_blank');
+    }
+    el('simEntrada').addEventListener('input',calcSim);
+    el('simParcelas').addEventListener('change',calcSim);
+
+    // fechar modal clicando fora
+    document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('show');}));
+
+    // ---------- CARREGAR DADOS ----------
+    async function loadSettings(){
+      const {data}=await sb.from('site_settings').select('*').eq('id',1).single();
+      if(data) applySettings(data);
+    }
+    async function loadCars(){
+      const {data,error}=await sb.from('cars').select('*, car_photos(*)').eq('status','available')
+        .order('featured',{ascending:false}).order('sort_order',{ascending:true}).order('created_at',{ascending:false});
+      if(error){ el('grid').innerHTML=`<div class="loading">Erro ao carregar. Tente recarregar a página.</div>`; return; }
+      cars=data||[]; renderCars();
+    }
+    // Tempo real: atualiza quando algo muda no painel
+    function subscribeRealtime(){
+      sb.channel('public-changes')
+        .on('postgres_changes',{event:'*',schema:'public',table:'cars'},()=>loadCars())
+        .on('postgres_changes',{event:'*',schema:'public',table:'car_photos'},()=>loadCars())
+        .on('postgres_changes',{event:'*',schema:'public',table:'site_settings'},()=>loadSettings())
+        .subscribe();
+    }
+    (async()=>{ await loadSettings(); await loadCars(); subscribeRealtime(); })();
+  })();
+  </script>
+</body>
+</html>
