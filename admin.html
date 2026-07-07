@@ -194,7 +194,7 @@
     <div class="page" id="p-financiamento">
       <div class="panel">
         <h3>Simulador de financiamento</h3>
-        <p class="muted" style="margin-bottom:12px;">Cada faixa calcula: <b>parcela = valor financiado × (%) ÷ nº de parcelas</b>. Edite as porcentagens abaixo.</p>
+        <p class="muted" style="margin-bottom:12px;">Cada faixa calcula: <b>parcela = (valor financiado + acréscimo %) ÷ nº de parcelas</b>.<br>Ex: financiado R$ 20.000 em 36x com 80% → (20.000 + 80%) = 36.000 ÷ 36 = R$ 1.000. Edite as porcentagens abaixo.</p>
         <div id="tiersBox"></div>
         <button class="btn btn-ghost btn-sm" onclick="addTier()" style="margin-top:6px;">+ Adicionar faixa</button>
         <div class="row" style="margin-top:16px;"><label>Observação da simulação</label><textarea data-k="finance_note"></textarea></div>
@@ -325,9 +325,9 @@
       const div=document.createElement('div');
       div.className='tier-row';
       div.innerHTML=`<input type="number" class="tier-n" value="${n||''}" placeholder="36">
-        <span class="lab">x = financiado ×</span>
+        <span class="lab">x → (financiado +</span>
         <input type="number" class="tier-pct" step="0.01" value="${pct||''}" placeholder="80">
-        <span class="lab">% ÷ parcelas</span>
+        <span class="lab">%) ÷ parcelas</span>
         <button class="tier-del" title="Remover">×</button>`;
       div.querySelector('.tier-del').onclick=()=>div.remove();
       el('tiersBox').appendChild(div);
