@@ -222,6 +222,15 @@
         <label>Valor de entrada (R$)</label>
         <input type="number" id="simEntrada" min="0" step="500" placeholder="Ex: 10000">
       </div>
+      <div class="field" style="display:flex;align-items:center;gap:9px;">
+        <input type="checkbox" id="simHasTrade" style="width:18px;height:18px;margin:0;flex:0 0 auto;">
+        <label for="simHasTrade" style="margin:0;font-weight:600;cursor:pointer;">Tenho um carro usado para dar na troca</label>
+      </div>
+      <div class="field" id="simTradeWrap" style="display:none;">
+        <label>Valor do seu carro usado (R$)</label>
+        <input type="number" id="simTradeValue" min="0" step="500" placeholder="Ex: 40000">
+        <div id="simTradeInfo" style="font-size:12px;color:var(--muted);margin-top:6px;"></div>
+      </div>
       <div class="field">
         <label>Número de parcelas</label>
         <select id="simParcelas"></select>
@@ -408,29 +417,69 @@
       el('simCarRef').textContent=`${simCar.brand} ${simCar.model} ${simCar.year_model||''}`;
       el('simPrice').value=money2(simCar.price);
       el('simEntrada').value='';
+      el('simHasTrade').checked=false;
+      el('simTradeWrap').style.display='none';
+      el('simTradeValue').value='';
+      el('simTradeInfo').textContent='';
       el('simNote').textContent=settings.finance_note||'';
       calcSim();
       el('simOverlay').classList.add('show');
     };
+    function tradeCredit(){
+      if(!el('simHasTrade').checked) return 0;
+      const v=Number(el('simTradeValue').value)||0;
+      if(v<=0) return 0;
+      return v>=50000 ? v*0.80 : Math.max(v-10000,0);
+    }
     window.closeSim=()=>el('simOverlay').classList.remove('show');
     function calcSim(){
       if(!simCar)return;
       const price=Number(simCar.price)||0;
-      const entrada=Number(el('simEntrada').value)||0;
+      const entradaCash=Number(el('simEntrada').value)||0;
+      const hasTrade=el('simHasTrade').checked;
+      const tradeVal=Number(el('simTradeValue').value)||0;
+      const credit=tradeCredit();
+      const entradaTotal=entradaCash+credit;
       const tiers=getTiers();
       const n=parseInt(el('simParcelas').value)||tiers[0].n;
       const tier=tiers.find(t=>String(t.n)===String(n))||tiers[0];
       const pct=(Number(tier.pct)||0)/100;
-      const financed=Math.max(price-entrada,0);
+      const financed=Math.max(price-entradaTotal,0);
       const total = financed*(1+pct);
       const pmt = n>0 ? total/n : 0;
       el('simVal').textContent=money2(pmt);
-      el('simDet').textContent=`${n}x • entrada ${money(entrada)} • financiado ${money(financed)}`;
-      const extra=`Simulação: ${simCar.brand} ${simCar.model}, entrada ${money(entrada)}, ${n}x de ${money2(pmt)}.`;
-      el('simWa').onclick=()=>window.open(waLink(extra),'_blank');
+      el('simDet').textContent=`${n}x • entrada total ${money(entradaTotal)} • financiado ${money(financed)}`;
+      // info do carro na troca
+      if(hasTrade){
+        el('simTradeInfo').textContent = tradeVal>0
+          ? `Seu carro (${money(tradeVal)}) entra como ${money(credit)} na entrada.`
+          : 'Informe o valor do seu carro usado.';
+      }
+      // validação: só habilita WhatsApp com tudo preenchido
+      const entradaOk = el('simEntrada').value.trim()!=='';
+      const tradeOk = !hasTrade || tradeVal>0;
+      const valid = entradaOk && tradeOk;
+      const btn=el('simWa');
+      btn.disabled=!valid;
+      btn.style.opacity=valid?'1':'0.5';
+      btn.style.cursor=valid?'pointer':'not-allowed';
+      el('simNote').textContent = valid ? (settings.finance_note||'') : 'Preencha a entrada' + (hasTrade?' e o valor do seu carro':'') + ' para enviar pelo WhatsApp.';
+      // mensagem do WhatsApp
+      let extra=`Simulação: ${simCar.brand} ${simCar.model}. Entrada total ${money(entradaTotal)}`;
+      if(hasTrade && credit>0){
+        extra+=` (${money(entradaCash)} em dinheiro + carro usado de ${money(tradeVal)} avaliado em ${money(credit)} na troca)`;
+      }
+      extra+=`. Financiado ${money(financed)} em ${n}x de ${money2(pmt)}.`;
+      if(hasTrade){ extra+=' Quero dar meu carro usado como parte da entrada.'; }
+      btn.onclick = valid ? (()=>window.open(waLink(extra),'_blank')) : null;
     }
     el('simEntrada').addEventListener('input',calcSim);
     el('simParcelas').addEventListener('change',calcSim);
+    el('simHasTrade').addEventListener('change',()=>{
+      el('simTradeWrap').style.display = el('simHasTrade').checked ? 'block' : 'none';
+      calcSim();
+    });
+    el('simTradeValue').addEventListener('input',calcSim);
 
     // fechar modal clicando fora
     document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('show');}));
