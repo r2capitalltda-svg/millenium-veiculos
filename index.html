@@ -92,9 +92,8 @@
   .modal-close{position:absolute;top:12px;right:12px;width:36px;height:36px;border-radius:50%;background:rgba(0,0,0,.5);
     color:#fff;border:none;font-size:20px;cursor:pointer;z-index:5;}
   .modal-grid{display:grid;grid-template-columns:1fr 1fr;}
-  @media(max-width:720px){.modal-grid{grid-template-columns:1fr;}}
-  .modal-media{background:var(--soft);}
-  .modal-media .carousel{aspect-ratio:1/1;cursor:default;}
+  .modal-media{background:#0f172a;}
+  .modal-media .carousel{aspect-ratio:auto;height:100%;min-height:340px;cursor:default;}
   .modal-info{padding:26px;}
   .modal-info h3{font-size:24px;margin-bottom:6px;}
   .modal-info .price{font-family:var(--font-title);font-weight:800;font-size:26px;color:var(--primary);margin:10px 0 18px;}
@@ -131,18 +130,28 @@
   .loading{text-align:center;padding:40px;color:var(--muted);}
 
   /* ---------- AJUSTES MOBILE ---------- */
-  @media(max-width:600px){
+  @media(max-width:720px){
+    /* Modal de detalhes: foto no topo, info rolável, botões fixos e sempre visíveis */
+    .modal{display:flex;flex-direction:column;max-height:92vh;}
+    .modal-grid{display:flex;flex-direction:column;flex:1;min-height:0;}
+    .modal-media{flex:0 0 auto;background:#0f172a;}
+    .modal-media .carousel{aspect-ratio:16/10;height:auto;min-height:0;max-height:28vh;}
+    .modal-info{flex:1;min-height:0;overflow-y:auto;padding:12px 14px 0;}
+    .modal-info h3{font-size:18px;margin-bottom:2px;}
+    .modal-info .price{font-size:19px;margin:2px 0 8px;}
+    .specs{gap:6px 12px;margin-bottom:8px;}
+    .spec{font-size:12.5px;}
+    .spec .k{font-size:10px;}
+    .modal-desc{font-size:12.5px;line-height:1.3;margin-bottom:8px;}
+    .modal-btns{grid-template-columns:1fr 1fr;gap:8px;position:sticky;bottom:0;background:var(--bg);
+      padding:8px 0 10px;margin-top:4px;border-top:1px solid var(--line);}
+    .modal-btns .btn{padding:11px 6px;font-size:12px;white-space:nowrap;}
+    .modal-close{width:30px;height:30px;font-size:17px;z-index:6;}
+    .overlay{padding:8px;}
+    /* Geral mobile */
     .container{padding:0 14px;}
     .section{padding:36px 0;}
     .section-title{font-size:24px;}
-    .overlay{padding:10px;align-items:flex-start;}
-    .modal{max-height:94vh;}
-    .modal-info{padding:18px;}
-    .modal-info h3{font-size:20px;}
-    .modal-info .price{font-size:22px;}
-    .modal-btns{grid-template-columns:1fr;}
-    .modal-btns .btn{padding:13px;}
-    .modal-close{width:32px;height:32px;font-size:18px;}
     .sim{padding:18px;}
     .sim h3{font-size:20px;}
     .sim-result .val{font-size:26px;}
@@ -150,7 +159,8 @@
     .card-btns .btn{font-size:12px;padding:10px 6px;}
   }
   @media(max-width:360px){
-    .specs{grid-template-columns:1fr;}
+    .modal-media .carousel{max-height:24vh;}
+    .modal-btns .btn{font-size:11px;}
   }
 </style>
 </head>
