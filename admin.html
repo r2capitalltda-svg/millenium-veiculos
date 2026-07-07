@@ -87,6 +87,13 @@
   .sheet h3{margin-bottom:14px;}
   .sheet-actions{display:flex;gap:10px;margin-top:8px;}
   .btn-ghost{background:#e5e7eb;color:var(--text);}
+  .tier-row{display:flex;align-items:center;gap:8px;background:var(--soft);border:1px solid var(--line);border-radius:10px;
+    padding:10px;margin-bottom:8px;}
+  .tier-row .tier-n{width:80px;padding:9px;border:1.5px solid var(--line);border-radius:8px;text-align:center;}
+  .tier-row .tier-pct{width:90px;padding:9px;border:1.5px solid var(--line);border-radius:8px;text-align:center;}
+  .tier-row .lab{font-size:13px;color:var(--muted);}
+  .tier-row .tier-del{margin-left:auto;background:var(--danger);color:#fff;border:none;border-radius:7px;width:32px;height:32px;
+    font-size:16px;cursor:pointer;padding:0;}
 </style>
 </head>
 <body>
@@ -187,11 +194,12 @@
     <div class="page" id="p-financiamento">
       <div class="panel">
         <h3>Simulador de financiamento</h3>
-        <div class="row"><label>Taxa de juros (% ao mês)</label><input type="number" step="0.01" data-k="interest_rate"></div>
-        <div class="row"><label>Opções de parcelas (separadas por vírgula)</label><input data-k="installment_options" placeholder="12,24,36,48,60"></div>
-        <div class="row"><label>Observação da simulação</label><textarea data-k="finance_note"></textarea></div>
+        <p class="muted" style="margin-bottom:12px;">Cada faixa calcula: <b>parcela = valor financiado × (%) ÷ nº de parcelas</b>. Edite as porcentagens abaixo.</p>
+        <div id="tiersBox"></div>
+        <button class="btn btn-ghost btn-sm" onclick="addTier()" style="margin-top:6px;">+ Adicionar faixa</button>
+        <div class="row" style="margin-top:16px;"><label>Observação da simulação</label><textarea data-k="finance_note"></textarea></div>
       </div>
-      <button class="btn save-btn" onclick="saveSettings()">Salvar financiamento</button>
+      <button class="btn save-btn" onclick="saveFinance()">Salvar financiamento</button>
     </div>
 
     <!-- GERAL -->
@@ -307,7 +315,44 @@
       });
       if(settings.logo_url) el('logoPrev').innerHTML=`<img src="${settings.logo_url}" style="height:50px;margin-bottom:6px;">`;
       if(settings.banner_image_url) el('bannerPrev').innerHTML=`<img src="${settings.banner_image_url}" style="height:70px;border-radius:8px;">`;
+      renderTiers();
     }
+    function parseTiers(){
+      try{ const t=JSON.parse(settings.finance_tiers||'[]'); if(Array.isArray(t)&&t.length) return t; }catch(e){}
+      return [{n:36,pct:80},{n:48,pct:87},{n:60,pct:97}];
+    }
+    function addTierRow(n,pct){
+      const div=document.createElement('div');
+      div.className='tier-row';
+      div.innerHTML=`<input type="number" class="tier-n" value="${n||''}" placeholder="36">
+        <span class="lab">x = financiado ×</span>
+        <input type="number" class="tier-pct" step="0.01" value="${pct||''}" placeholder="80">
+        <span class="lab">% ÷ parcelas</span>
+        <button class="tier-del" title="Remover">×</button>`;
+      div.querySelector('.tier-del').onclick=()=>div.remove();
+      el('tiersBox').appendChild(div);
+    }
+    function renderTiers(){
+      el('tiersBox').innerHTML='';
+      parseTiers().forEach(t=>addTierRow(t.n,t.pct));
+    }
+    window.addTier=()=>addTierRow('','');
+    window.saveFinance=async()=>{
+      const rows=[...el('tiersBox').querySelectorAll('.tier-row')];
+      const tiers=rows.map(r=>({
+        n:parseInt(r.querySelector('.tier-n').value)||0,
+        pct:parseFloat(r.querySelector('.tier-pct').value)||0
+      })).filter(t=>t.n>0);
+      if(!tiers.length){toast('Adicione pelo menos uma faixa.');return;}
+      const patch={
+        finance_tiers:JSON.stringify(tiers),
+        finance_note:(document.querySelector('[data-k="finance_note"]').value||''),
+        updated_at:new Date().toISOString()
+      };
+      const {error}=await sb.from('site_settings').update(patch).eq('id',1);
+      if(error){toast('Erro ao salvar: '+error.message);return;}
+      toast('Financiamento salvo ✓'); await loadSettings();
+    };
     window.saveSettings=async()=>{
       const patch={};
       document.querySelectorAll('[data-k]').forEach(inp=>{

@@ -393,9 +393,13 @@
 
     // ---------- SIMULADOR ----------
     let simCar=null;
+    function getTiers(){
+      try{ const t=JSON.parse(settings.finance_tiers||'[]'); if(Array.isArray(t)&&t.length) return t; }catch(e){}
+      return [{n:36,pct:80},{n:48,pct:87},{n:60,pct:97}];
+    }
     function parcelaOptions(){
-      const opts=(settings.installment_options||'12,24,36,48,60').split(',').map(x=>x.trim()).filter(Boolean);
-      el('simParcelas').innerHTML=opts.map(o=>`<option value="${o}">${o}x</option>`).join('');
+      const tiers=getTiers();
+      el('simParcelas').innerHTML=tiers.map(t=>`<option value="${t.n}">${t.n}x</option>`).join('');
     }
     window.openSim=function(id){
       simCar=cars.find(x=>x.id===id); if(!simCar)return;
@@ -413,13 +417,14 @@
       if(!simCar)return;
       const price=Number(simCar.price)||0;
       const entrada=Number(el('simEntrada').value)||0;
-      const n=parseInt(el('simParcelas').value)||12;
-      const rate=(Number(settings.interest_rate)||2.2)/100;
+      const tiers=getTiers();
+      const n=parseInt(el('simParcelas').value)||tiers[0].n;
+      const tier=tiers.find(t=>String(t.n)===String(n))||tiers[0];
+      const pct=(Number(tier.pct)||0)/100;
       const financed=Math.max(price-entrada,0);
-      let pmt=0;
-      if(financed>0){ pmt = rate>0 ? financed*rate/(1-Math.pow(1+rate,-n)) : financed/n; }
+      const pmt = n>0 ? financed*pct/n : 0;
       el('simVal').textContent=money2(pmt);
-      el('simDet').textContent=`${n}x • entrada ${money(entrada)} • financiado ${money(financed)} • taxa ${(rate*100).toString().replace('.',',')}% a.m.`;
+      el('simDet').textContent=`${n}x • entrada ${money(entrada)} • financiado ${money(financed)}`;
       const extra=`Simulação: ${simCar.brand} ${simCar.model}, entrada ${money(entrada)}, ${n}x de ${money2(pmt)}.`;
       el('simWa').onclick=()=>window.open(waLink(extra),'_blank');
     }
