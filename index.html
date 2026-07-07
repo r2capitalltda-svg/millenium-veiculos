@@ -457,11 +457,13 @@
       btn.style.cursor=valid?'pointer':'not-allowed';
       el('simNote').textContent = valid ? (settings.finance_note||'') : 'Preencha a entrada' + (hasTrade?' e o valor do seu carro':'') + ' para enviar pelo WhatsApp.';
       // mensagem do WhatsApp
-      let extra=`Simulação: ${simCar.brand} ${simCar.model}. Entrada total ${money(entradaTotal)}`;
-      if(hasTrade && credit>0){
-        extra+=` (${money(entradaCash)} em dinheiro + carro usado de ${money(tradeVal)} avaliado em ${money(credit)} na troca)`;
+      let extra=`Simulação: ${simCar.brand} ${simCar.model}.`;
+      if(hasTrade && tradeVal>0){
+        extra+=` Entrada: ${money(entradaCash)} em dinheiro + carro usado de ${money(tradeVal)}.`;
+      } else {
+        extra+=` Entrada: ${money(entradaCash)}.`;
       }
-      extra+=`. Financiado ${money(financed)} em ${n}x de ${money2(pmt)}.`;
+      extra+=` Financiado ${money(financed)} em ${n}x de ${money2(pmt)}.`;
       if(hasTrade){ extra+=' Quero dar meu carro usado como parte da entrada.'; }
       btn.onclick = valid ? (()=>window.open(waLink(extra),'_blank')) : null;
     }
