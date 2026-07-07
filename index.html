@@ -139,11 +139,7 @@
       <a href="#" class="head-logo" id="headLogo">
         <span class="name" id="logoName">Millenium Veículos</span>
       </a>
-      <div class="head-right">
-        <a class="btn-wa-top" id="headWa" target="_blank" rel="noopener">
-          <span>💬</span> WhatsApp
-        </a>
-      </div>
+      <div class="head-right"></div>
     </div>
   </header>
 
@@ -275,9 +271,12 @@
       document.title = s.store_name || 'Millenium Veículos';
       el('logoName').textContent = s.store_name || 'Millenium Veículos';
       el('footName').textContent = s.store_name || 'Millenium Veículos';
-      // Logo
+      // Logo (com tamanho personalizável)
+      const logoH = Number(s.logo_size)||52;
       if(s.logo_url){
-        el('headLogo').innerHTML = `<img src="${s.logo_url}" alt="${s.store_name||''}">`;
+        el('headLogo').innerHTML = `<img src="${s.logo_url}" alt="${s.store_name||''}" style="height:${logoH}px;">`;
+      } else {
+        el('logoName').style.fontSize = Math.max(14, Math.round(logoH*0.38)) + 'px';
       }
       if(s.favicon_url){ el('favicon').href = s.favicon_url; }
       // Header contato
@@ -295,7 +294,6 @@
       }
       // WhatsApp
       const wa = waLink('');
-      el('headWa').href = wa;
       const fwa = el('footWa'); fwa.href = wa; fwa.textContent = s.whatsapp ? '💬 '+formatPhone(s.whatsapp) : '';
       // Rodapé
       el('footAbout').textContent = s.about_text || '';

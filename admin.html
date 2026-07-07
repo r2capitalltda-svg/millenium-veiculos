@@ -139,6 +139,9 @@
         <h3>Logomarca e ícone</h3>
         <div class="row"><label>Logo (imagem)</label><div id="logoPrev"></div>
           <input type="file" accept="image/*" id="logoFile"></div>
+        <div class="row"><label>Tamanho da logo (altura em pixels)</label>
+          <input type="number" data-k="logo_size" min="20" max="160" step="1" placeholder="52">
+          <span class="muted">Padrão: 52. Quanto maior o número, maior a logo.</span></div>
         <div class="row"><label>Favicon (ícone da aba)</label><input type="file" accept="image/*" id="faviconFile"></div>
       </div>
       <div class="panel">
@@ -359,6 +362,7 @@
         const k=inp.dataset.k; let v=inp.value;
         if(k==='show_map') v=(v==='true');
         if(k==='interest_rate') v=parseFloat(v)||0;
+        if(k==='logo_size') v=parseInt(v)||52;
         patch[k]=v;
       });
       patch.updated_at=new Date().toISOString();
