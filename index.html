@@ -79,7 +79,8 @@
   .card-price{font-family:var(--font-title);font-weight:800;font-size:22px;color:var(--primary);margin-bottom:14px;}
   .card-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
   .btn{border:none;border-radius:9px;padding:10px 8px;font-weight:700;font-size:13px;cursor:pointer;
-    display:flex;align-items:center;justify-content:center;gap:6px;font-family:var(--font-body);}
+    display:flex;align-items:center;justify-content:center;gap:6px;font-family:var(--font-body);
+    text-transform:uppercase;letter-spacing:.03em;}
   .btn-wa{background:var(--button);color:#fff;}
   .btn-fin{background:var(--primary);color:#fff;}
   .btn:hover{filter:brightness(.95);}
@@ -281,7 +282,7 @@
         <div class="val" id="simVal">R$ —</div>
         <div class="det" id="simDet"></div>
       </div>
-      <button class="btn btn-wa" style="width:100%;padding:13px;" id="simWa">💬 Falar no WhatsApp sobre esta simulação</button>
+      <button class="btn btn-wa" style="width:100%;padding:13px;" id="simWa">Falar no WhatsApp sobre esta simulação</button>
       <div class="sim-note" id="simNote"></div>
     </div>
   </div>
@@ -410,8 +411,8 @@
             <div class="card-meta">${meta}</div>
             <div class="card-price">${c.price?money(c.price):'Consulte'}</div>
             <div class="card-btns">
-              <a class="btn btn-wa" href="${waLink(carRef(c))}" target="_blank" rel="noopener">💬 WhatsApp</a>
-              <button class="btn btn-fin" onclick="openSim('${c.id}')">📊 Financiar</button>
+              <a class="btn btn-wa" href="${waLink(carRef(c))}" target="_blank" rel="noopener">WhatsApp</a>
+              <button class="btn btn-fin" onclick="openSim('${c.id}')">Financiar</button>
             </div>
           </div>
         </div>`;
@@ -436,8 +437,8 @@
         <div class="specs">${specs.map(s=>`<div class="spec"><div class="k">${s[0]}</div><div class="v">${s[1]}</div></div>`).join('')}</div>
         ${c.description?`<div class="modal-desc">${c.description}</div>`:''}`;
       el('detailBtns').innerHTML=`
-        <a class="btn btn-wa" href="${waLink(carRef(c))}" target="_blank" rel="noopener">💬 WhatsApp</a>
-        <button class="btn btn-fin" onclick="openSim('${c.id}')">📊 Simular Financiamento</button>`;
+        <a class="btn btn-wa" href="${waLink(carRef(c))}" target="_blank" rel="noopener">WhatsApp</a>
+        <button class="btn btn-fin" onclick="openSim('${c.id}')">Simular Financiamento</button>`;
       el('detailOverlay').classList.add('show');
     };
     window.closeDetail=()=>el('detailOverlay').classList.remove('show');
