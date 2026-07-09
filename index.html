@@ -23,20 +23,33 @@
   /* ---------- HEADER ---------- */
   header.site{position:sticky;top:0;z-index:50;background:var(--bg);border-bottom:1px solid var(--line);
     box-shadow:0 1px 6px rgba(0,0,0,.04);}
-  .head-inner{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:16px;padding:12px 20px;max-width:1180px;margin:0 auto;}
-  .head-left{font-size:13px;color:var(--muted);display:flex;flex-direction:column;gap:2px;}
-  .head-logo{justify-self:center;display:flex;align-items:center;gap:10px;}
+  .head-inner{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 20px;max-width:1180px;margin:0 auto;}
+  .head-logo{display:flex;align-items:center;gap:10px;flex:0 0 auto;}
   .head-logo img{height:52px;width:auto;object-fit:contain;}
   .head-logo .name{font-family:var(--font-title);font-weight:800;font-size:20px;color:var(--primary);white-space:nowrap;}
-  .head-right{justify-self:end;}
-  .btn-wa-top{background:var(--button);color:#fff;padding:9px 16px;border-radius:8px;font-weight:600;font-size:14px;
-    display:inline-flex;align-items:center;gap:7px;}
+  .head-tools{display:flex;align-items:center;gap:18px;flex:1 1 auto;justify-content:flex-end;}
+  .head-search{position:relative;flex:0 1 320px;}
+  .head-search input{width:100%;padding:9px 14px 9px 38px;border:1.5px solid var(--line);border-radius:22px;font-size:14px;
+    font-family:var(--font-body);outline:none;}
+  .head-search input:focus{border-color:var(--primary);}
+  .head-search .s-ico{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none;}
+  .head-address{font-size:13px;color:var(--muted);max-width:230px;line-height:1.4;}
+  .hamburger{display:none;background:none;border:none;cursor:pointer;padding:6px;flex-direction:column;gap:5px;width:36px;}
+  .hamburger span{display:block;height:2px;width:24px;background:var(--text);border-radius:2px;}
+  .mobile-menu{display:none;}
   @media(max-width:760px){
-    .head-inner{grid-template-columns:1fr;gap:8px;justify-items:center;}
-    .head-left{display:none;}
+    .head-inner{display:grid;grid-template-columns:44px 1fr 44px;align-items:center;gap:8px;}
+    .hamburger{display:flex;justify-self:start;}
     .head-logo{justify-self:center;}
     .head-logo img{height:40px;}
     .head-logo .name{font-size:16px;}
+    .head-tools{display:none;}
+    .mobile-menu{display:none;grid-column:1 / -1;flex-direction:column;gap:14px;padding:8px 20px 18px;border-top:1px solid var(--line);}
+    .mobile-menu.open{display:flex;}
+    .mm-section label{display:block;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin-bottom:6px;}
+    .mm-section input{width:100%;padding:11px 14px;border:1.5px solid var(--line);border-radius:10px;font-size:15px;font-family:var(--font-body);}
+    .mm-link{display:block;font-size:16px;font-weight:600;color:var(--text);padding:10px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);}
+    .mm-address{font-size:14px;color:var(--muted);line-height:1.5;}
   }
 
   /* ---------- BANNER ---------- */
@@ -178,11 +191,28 @@
   <!-- HEADER -->
   <header class="site">
     <div class="head-inner">
-      <div class="head-left" id="headLeft"></div>
+      <button class="hamburger" id="hamburger" aria-label="Abrir menu"><span></span><span></span><span></span></button>
       <a href="#" class="head-logo" id="headLogo">
         <span class="name" id="logoName">Millenium Veículos</span>
       </a>
-      <div class="head-right"></div>
+      <div class="head-tools">
+        <div class="head-search">
+          <svg class="s-ico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.5" y2="16.5"></line></svg>
+          <input type="search" id="searchDesktop" placeholder="Pesquisar carro pelo nome...">
+        </div>
+        <div class="head-address" id="headAddress"></div>
+      </div>
+      <div class="mobile-menu" id="mobileMenu">
+        <div class="mm-section">
+          <label>Pesquisar carro</label>
+          <input type="search" id="searchMobile" placeholder="Pesquisar pelo nome...">
+        </div>
+        <a class="mm-link" href="#estoque" id="mmEstoque">Estoque</a>
+        <div class="mm-section">
+          <label>Endereço</label>
+          <div class="mm-address" id="mmAddress"></div>
+        </div>
+      </div>
     </div>
   </header>
 
@@ -296,6 +326,7 @@
 
     let settings = {};
     let cars = [];
+    let searchQuery = '';
 
     const money = n => (Number(n)||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL',minimumFractionDigits:0,maximumFractionDigits:0});
     const money2 = n => (Number(n)||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL',minimumFractionDigits:2,maximumFractionDigits:2});
@@ -326,11 +357,10 @@
         el('logoName').style.fontSize = Math.max(14, Math.round(logoH*0.38)) + 'px';
       }
       if(s.favicon_url){ el('favicon').href = s.favicon_url; }
-      // Header contato
-      const parts=[];
-      if(s.address) parts.push(`📍 ${s.address}`);
-      if(s.opening_hours) parts.push(`🕒 ${s.opening_hours}`);
-      el('headLeft').innerHTML = parts.map(p=>`<span>${p}</span>`).join('');
+      // Endereço no cabeçalho (desktop) e no menu (mobile)
+      const addrHtml = (s.address?`📍 ${s.address}`:'') + (s.opening_hours?`<br>🕒 ${s.opening_hours}`:'');
+      el('headAddress').innerHTML = addrHtml;
+      el('mmAddress').innerHTML = addrHtml;
       // Banner
       el('bannerText').textContent = s.banner_text || 'Bem-vindo';
       el('bannerBtn').textContent = s.banner_button_text || 'Ver estoque';
@@ -400,7 +430,13 @@
     function renderCars(){
       const grid=el('grid');
       if(!cars.length){ grid.innerHTML=`<div class="loading">Nenhum veículo disponível no momento.</div>`; return; }
-      grid.innerHTML = cars.map((c,i)=>{
+      let list = cars;
+      const q=(searchQuery||'').trim().toLowerCase();
+      if(q){
+        list = cars.filter(c=>`${c.brand} ${c.model} ${c.engine_version||''} ${c.year_model||''} ${c.year_fab||''} ${c.color||''} ${c.fuel||''}`.toLowerCase().includes(q));
+      }
+      if(!list.length){ grid.innerHTML=`<div class="loading">Nenhum carro encontrado para "${searchQuery}".</div>`; return; }
+      grid.innerHTML = list.map((c,i)=>{
         const ph=photosOf(c);
         const meta=[c.year_model||c.year_fab, c.mileage!=null?c.mileage.toLocaleString('pt-BR')+' km':null, c.fuel, c.transmission].filter(Boolean).join(' • ');
         return `<div class="card">
@@ -521,6 +557,19 @@
 
     // fechar modal clicando fora
     document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('show');}));
+
+    // ---------- BUSCA + MENU MOBILE ----------
+    window.doSearch=(v)=>{
+      searchQuery=v||'';
+      const a=el('searchDesktop'), b=el('searchMobile');
+      if(a && a.value!==searchQuery) a.value=searchQuery;
+      if(b && b.value!==searchQuery) b.value=searchQuery;
+      renderCars();
+    };
+    el('searchDesktop').addEventListener('input',e=>doSearch(e.target.value));
+    el('searchMobile').addEventListener('input',e=>doSearch(e.target.value));
+    el('hamburger').addEventListener('click',()=>el('mobileMenu').classList.toggle('open'));
+    el('mmEstoque').addEventListener('click',()=>el('mobileMenu').classList.remove('open'));
 
     // ---------- CARREGAR DADOS ----------
     async function loadSettings(){
