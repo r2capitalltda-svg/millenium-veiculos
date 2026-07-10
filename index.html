@@ -161,6 +161,7 @@
   @media(max-width:760px){.foot-grid{grid-template-columns:1fr;gap:18px;}}
   footer.site h4{color:#fff;font-size:15px;margin-bottom:10px;}
   footer.site a,footer.site p{color:#cbd5e1;font-size:14px;margin-bottom:6px;display:block;}
+  #footAbout{line-height:1.55;max-width:360px;color:#94a3b8;}
   .foot-bottom{border-top:1px solid #1e293b;margin-top:26px;padding-top:16px;text-align:center;font-size:12px;color:#64748b;}
   .loading{text-align:center;padding:40px;color:var(--muted);}
 
@@ -384,7 +385,7 @@
       const wa = waLink('');
       const fwa = el('footWa'); fwa.href = wa; fwa.textContent = s.whatsapp ? '💬 '+formatPhone(s.whatsapp) : '';
       // Rodapé
-      el('footAbout').textContent = s.about_text || '';
+      el('footAbout').textContent = s.about_text || 'Fundada em 1999, a Millenium começou como loja de som e com apenas 1 carro. Hoje é uma empresa sólida e referência em todo o Vale do Aço.';
       el('footAddr').textContent = s.address ? '📍 '+s.address : '';
       el('footHours').textContent = s.opening_hours ? '🕒 '+s.opening_hours : '';
       if(s.instagram){ const a=el('footIg'); a.style.display='inline-flex'; a.href=s.instagram; }
