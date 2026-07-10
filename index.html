@@ -254,14 +254,6 @@
     </div>
   </header>
 
-  <!-- BANNER -->
-  <section class="banner" id="banner">
-    <div class="b-content">
-      <h2 id="bannerText">Bem-vindo à Millenium Veículos</h2>
-      <a class="b-btn" id="bannerBtn" href="#estoque">Ver estoque</a>
-    </div>
-  </section>
-
   <!-- ESTOQUE -->
   <section class="section" id="estoque">
     <div class="container">
@@ -416,14 +408,6 @@
       const addrHtml = (s.address?`📍 ${s.address}`:'') + (s.opening_hours?`<br>🕒 ${s.opening_hours}`:'');
       el('headAddress').innerHTML = addrHtml;
       el('mmAddress').innerHTML = addrHtml;
-      // Banner
-      el('bannerText').textContent = s.banner_text || 'Bem-vindo';
-      el('bannerBtn').textContent = s.banner_button_text || 'Ver estoque';
-      el('bannerBtn').setAttribute('href', s.banner_button_link || '#estoque');
-      if(s.banner_image_url){
-        const img=document.createElement('img'); img.className='bg'; img.src=s.banner_image_url;
-        el('banner').prepend(img);
-      }
       // WhatsApp
       const wa = waLink('');
       const fwa = el('footWa'); fwa.href = wa; fwa.textContent = s.whatsapp ? '💬 '+formatPhone(s.whatsapp) : '';
