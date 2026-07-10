@@ -7,9 +7,25 @@
 <title>Millenium Veículos</title>
 <meta name="description" content="Millenium Veículos — seminovos e usados em Ipatinga/MG. Confira nosso estoque.">
 <link rel="icon" id="favicon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&family=Inter:wght@400;600;700&display=swap">
+<script>
+  /* Aplica cores/fontes salvas na hora, evitando o "flash" das cores padrão ao abrir */
+  try{
+    var __mv=JSON.parse(localStorage.getItem('mv_settings')||'null');
+    if(__mv){
+      var __r=document.documentElement.style,
+          __m={color_primary:'--primary',color_secondary:'--secondary',color_background:'--bg',color_button:'--button',color_text:'--text'};
+      for(var __k in __m){ if(__mv[__k]) __r.setProperty(__m[__k],__mv[__k]); }
+      if(__mv.font_title) __r.setProperty('--font-title',"'"+__mv.font_title+"',sans-serif");
+      if(__mv.font_body) __r.setProperty('--font-body',"'"+__mv.font_body+"',sans-serif");
+    }
+  }catch(e){}
+</script>
 <style>
   :root{
-    --primary:#1a56db; --secondary:#0b3fa8; --bg:#ffffff;
+    --primary:#36393f; --secondary:#242529; --bg:#ffffff;
     --button:#16a34a; --text:#1f2937; --font-title:'Poppins',sans-serif; --font-body:'Inter',sans-serif;
     --muted:#6b7280; --card:#ffffff; --line:#e5e7eb; --soft:#f4f6fb;
   }
@@ -382,6 +398,7 @@
     // ---------- TEMA / CONFIGURAÇÕES ----------
     function applySettings(s){
       settings = s || {};
+      try{ localStorage.setItem('mv_settings', JSON.stringify(s)); }catch(e){}
       const r = document.documentElement.style;
       if(s.color_primary) r.setProperty('--primary', s.color_primary);
       if(s.color_secondary) r.setProperty('--secondary', s.color_secondary);
@@ -630,7 +647,10 @@
         .on('postgres_changes',{event:'*',schema:'public',table:'site_settings'},()=>loadSettings())
         .subscribe();
     }
-    (async()=>{ await loadSettings(); await loadCars(); subscribeRealtime(); })();
+    (async()=>{
+      try{ const c=JSON.parse(localStorage.getItem('mv_settings')||'null'); if(c) applySettings(c); }catch(e){}
+      await loadSettings(); await loadCars(); subscribeRealtime();
+    })();
   })();
   </script>
 </body>
