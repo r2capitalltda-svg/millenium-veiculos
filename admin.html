@@ -9,6 +9,7 @@
 <link rel="apple-touch-icon" href="https://gcxbfsdvlrlxuqkuvfnw.supabase.co/storage/v1/object/public/car-photos/brand/app-icon-192.png">
 <link rel="apple-touch-icon" sizes="192x192" href="https://gcxbfsdvlrlxuqkuvfnw.supabase.co/storage/v1/object/public/car-photos/brand/app-icon-192.png">
 <link rel="icon" type="image/png" href="https://gcxbfsdvlrlxuqkuvfnw.supabase.co/storage/v1/object/public/car-photos/brand/app-icon-192.png">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.6/Sortable.min.js"></script>
 <style>
   :root{--primary:#1a56db;--button:#16a34a;--text:#1f2937;--muted:#6b7280;--line:#e5e7eb;--soft:#f4f6fb;--danger:#dc2626;}
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
@@ -90,6 +91,14 @@
 
   /* PHOTOS */
   .photos{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px;}
+  .photo{cursor:grab;touch-action:none;}
+  .photo:active{cursor:grabbing;}
+  .car-item .drag-handle{cursor:grab;color:#94a3b8;padding:6px 4px;flex:0 0 auto;touch-action:none;
+    display:flex;align-items:center;align-self:center;}
+  .car-item .drag-handle:active{cursor:grabbing;}
+  .sortable-ghost{opacity:.35;}
+  .sortable-chosen{box-shadow:0 6px 18px rgba(0,0,0,.18);}
+  .drag-hint{font-size:12px;color:var(--muted);margin:2px 0 10px;}
   .photo{position:relative;width:84px;height:84px;border-radius:9px;overflow:hidden;border:1px solid var(--line);}
   .photo img{width:100%;height:100%;object-fit:cover;}
   .photo .x{position:absolute;top:2px;right:2px;background:rgba(0,0,0,.6);color:#fff;border:none;border-radius:50%;
@@ -278,7 +287,9 @@
         <div class="row"><label>Status</label><select id="c_status"><option value="available">Disponível</option><option value="sold">Vendido</option><option value="hidden">Oculto</option></select></div>
         <div class="row"><label>Destaque?</label><select id="c_featured"><option value="false">Não</option><option value="true">Sim</option></select></div>
       </div>
-      <div class="row"><label>Fotos</label><div class="photos" id="c_photos"></div>
+      <div class="row"><label>Fotos</label>
+        <p class="drag-hint" id="c_dragHint" style="display:none;">Arraste para reordenar • a 1ª foto é a capa</p>
+        <div class="photos" id="c_photos"></div>
         <p class="muted" id="c_photoHint">Salve o carro para adicionar fotos.</p></div>
       <div class="sheet-actions">
         <button class="btn btn-ghost" onclick="closeCar()">Cancelar</button>
@@ -416,17 +427,19 @@
     // ---------- CARS ----------
     async function loadCars(){
       const {data}=await sb.from('cars').select('*, car_photos(*)')
-        .order('featured',{ascending:false}).order('sort_order',{ascending:true}).order('created_at',{ascending:false});
+        .order('sort_order',{ascending:true}).order('created_at',{ascending:false});
       cars=data||[]; renderCars();
     }
     function mainPhoto(c){const p=(c.car_photos||[]).slice().sort((a,b)=>(b.is_main-a.is_main)||(a.sort_order-b.sort_order));return p[0];}
+    const gripSvg='<svg width="17" height="17" viewBox="0 0 16 16" fill="currentColor"><circle cx="5" cy="4" r="1.5"/><circle cx="11" cy="4" r="1.5"/><circle cx="5" cy="8" r="1.5"/><circle cx="11" cy="8" r="1.5"/><circle cx="5" cy="12" r="1.5"/><circle cx="11" cy="12" r="1.5"/></svg>';
     function renderCars(){
       const box=el('carsList');
       if(!cars.length){box.innerHTML='<p class="muted">Nenhum carro cadastrado. Toque em "+ Adicionar carro".</p>';return;}
       box.innerHTML=cars.map(c=>{
         const mp=mainPhoto(c);
         const stMap={available:'Disponível',sold:'Vendido',hidden:'Oculto'};
-        return `<div class="car-item">
+        return `<div class="car-item" data-id="${c.id}">
+          <div class="drag-handle" title="Arraste para reordenar">${gripSvg}</div>
           ${mp?`<img src="${mp.url}">`:'<div class="noimg">sem foto</div>'}
           <div class="info">
             <b>${c.brand} ${c.model}</b>
@@ -439,6 +452,20 @@
           </div>
         </div>`;
       }).join('');
+      initCarsSortable();
+    }
+    let carsSortable=null;
+    function initCarsSortable(){
+      const box=el('carsList'); if(!box||!window.Sortable||!cars.length) return;
+      if(carsSortable){carsSortable.destroy();carsSortable=null;}
+      carsSortable=Sortable.create(box,{handle:'.drag-handle',animation:150,delay:120,delayOnTouchOnly:true,onEnd:persistCarOrder});
+    }
+    async function persistCarOrder(){
+      const ids=[...el('carsList').querySelectorAll('.car-item')].map(n=>n.dataset.id);
+      toast('Salvando ordem...');
+      await Promise.all(ids.map((id,i)=>sb.from('cars').update({sort_order:i}).eq('id',id)));
+      toast('Ordem salva ✓');
+      await loadCars();
     }
     window.openCar=(id)=>{
       editingCarId=id||null;
@@ -472,6 +499,7 @@
         if(error){toast('Erro: '+error.message);el('carSaveBtn').textContent='Salvar';return;}
         toast('Carro atualizado ✓');
       }else{
+        rec.sort_order=cars.reduce((m,c)=>Math.max(m,(c.sort_order??-1)),-1)+1;
         const {data,error}=await sb.from('cars').insert(rec).select().single();
         if(error){toast('Erro: '+error.message);el('carSaveBtn').textContent='Salvar';return;}
         editingCarId=data.id; el('carId').value=data.id;
@@ -491,14 +519,30 @@
     // ---------- PHOTOS ----------
     function renderPhotos(c){
       const box=el('c_photos');
-      if(!editingCarId){el('c_photoHint').style.display='block';box.innerHTML='';return;}
+      if(!editingCarId){el('c_photoHint').style.display='block';el('c_dragHint').style.display='none';box.innerHTML='';return;}
       el('c_photoHint').style.display='none';
       const photos=(c&&c.car_photos?c.car_photos:[]).slice().sort((a,b)=>(b.is_main-a.is_main)||(a.sort_order-b.sort_order));
-      box.innerHTML=photos.map(p=>`<div class="photo">
-        <img src="${p.url}" onclick="setMain('${p.id}')">
-        ${p.is_main?'<div class="main-tag">CAPA</div>':''}
+      el('c_dragHint').style.display=photos.length>1?'block':'none';
+      box.innerHTML=photos.map((p,i)=>`<div class="photo" data-id="${p.id}">
+        <img src="${p.url}">
+        ${i===0?'<div class="main-tag">CAPA</div>':''}
         <button class="x" onclick="delPhoto('${p.id}')">×</button>
       </div>`).join('')+`<div class="add-photo" onclick="pickPhotos()">+</div>`;
+      initPhotosSortable();
+    }
+    let photosSortable=null;
+    function initPhotosSortable(){
+      const box=el('c_photos'); if(!box||!window.Sortable) return;
+      if(photosSortable){photosSortable.destroy();photosSortable=null;}
+      photosSortable=Sortable.create(box,{draggable:'.photo',filter:'.add-photo,.x',animation:150,delay:100,delayOnTouchOnly:true,onEnd:persistPhotoOrder});
+    }
+    async function persistPhotoOrder(){
+      const ids=[...el('c_photos').querySelectorAll('.photo')].map(n=>n.dataset.id);
+      if(!ids.length) return;
+      toast('Salvando ordem...');
+      await Promise.all(ids.map((id,i)=>sb.from('car_photos').update({sort_order:i,is_main:i===0}).eq('id',id)));
+      toast('Ordem das fotos salva ✓');
+      await loadCars(); renderPhotos(cars.find(x=>x.id===editingCarId));
     }
     window.pickPhotos=()=>el('photoInput').click();
     el('photoInput').onchange=async e=>{

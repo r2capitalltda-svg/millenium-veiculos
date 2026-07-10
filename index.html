@@ -618,7 +618,7 @@
     }
     async function loadCars(){
       const {data,error}=await sb.from('cars').select('*, car_photos(*)').eq('status','available')
-        .order('featured',{ascending:false}).order('sort_order',{ascending:true}).order('created_at',{ascending:false});
+        .order('sort_order',{ascending:true}).order('created_at',{ascending:false});
       if(error){ el('grid').innerHTML=`<div class="loading">Erro ao carregar. Tente recarregar a página.</div>`; return; }
       cars=data||[]; renderCars();
     }
