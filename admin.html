@@ -27,6 +27,21 @@
   .btn:active{transform:scale(.99);}
   .err{color:var(--danger);font-size:13px;text-align:center;margin-top:12px;min-height:18px;}
 
+  /* AVISO INSTALAR PWA */
+  #pwaBanner{display:none;position:fixed;left:12px;right:12px;bottom:12px;z-index:100;
+    background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:0 12px 38px rgba(0,0,0,.24);
+    padding:15px 16px 14px;max-width:440px;margin:0 auto;animation:pwaUp .28s ease;}
+  @keyframes pwaUp{from{transform:translateY(20px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+  #pwaBanner .pwa-head{display:flex;align-items:center;gap:10px;margin-bottom:7px;}
+  #pwaBanner .pwa-ico{width:38px;height:38px;border-radius:9px;flex:0 0 auto;}
+  #pwaBanner .pwa-ttl{font-size:15px;font-weight:700;line-height:1.2;}
+  #pwaBanner .pwa-x{margin-left:auto;background:none;border:none;font-size:22px;color:var(--muted);
+    cursor:pointer;width:auto;line-height:1;padding:0 4px;}
+  #pwaBanner p{font-size:13.5px;color:var(--muted);line-height:1.55;}
+  #pwaBanner p b{color:var(--text);}
+  #pwaBanner .pwa-btn{margin-top:12px;background:var(--primary);color:#fff;border:none;border-radius:10px;
+    padding:12px;font-weight:700;width:100%;cursor:pointer;}
+
   /* APP */
   #app{display:none;max-width:920px;margin:0 auto;padding-bottom:80px;}
   .topbar{position:sticky;top:0;z-index:20;background:#fff;border-bottom:1px solid var(--line);
@@ -99,6 +114,17 @@
 </style>
 </head>
 <body>
+
+  <!-- AVISO INSTALAR PWA (somente no admin) -->
+  <div id="pwaBanner">
+    <div class="pwa-head">
+      <img class="pwa-ico" src="icon-192.png" alt="">
+      <div class="pwa-ttl">Instalar o Painel Millenium</div>
+      <button class="pwa-x" id="pwaClose" aria-label="Fechar">&times;</button>
+    </div>
+    <p id="pwaText"></p>
+    <button class="pwa-btn" id="pwaInstall" style="display:none;">Instalar aplicativo</button>
+  </div>
 
   <!-- LOGIN -->
   <div id="login">
@@ -504,6 +530,33 @@
 
     // Service worker (PWA)
     if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch(()=>{});}
+
+    // ---------- Aviso para instalar o app (somente no admin) ----------
+    (function(){
+      const banner=el('pwaBanner'); if(!banner) return;
+      const txt=el('pwaText'), instBtn=el('pwaInstall'), closeBtn=el('pwaClose');
+      const standalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+      if(standalone) return;                              // já está instalado
+      if(sessionStorage.getItem('pwaHide')==='1') return; // fechou nesta sessão
+      const share='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1a56db" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><path d="M12 3v13"/><path d="M8 7l4-4 4 4"/><path d="M5 12v7a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-7"/></svg>';
+      const ua=navigator.userAgent||'';
+      const isIOS=/iphone|ipad|ipod/i.test(ua) || (navigator.platform==='MacIntel' && navigator.maxTouchPoints>1);
+      let deferred=null;
+      closeBtn.onclick=()=>{ banner.style.display='none'; sessionStorage.setItem('pwaHide','1'); };
+      if(isIOS){
+        txt.innerHTML='Para instalar no iPhone: toque em <b>Compartilhar</b> '+share+' na barra do Safari e depois em <b>“Adicionar à Tela de Início”</b>.';
+        banner.style.display='block';
+      } else {
+        window.addEventListener('beforeinstallprompt',(e)=>{
+          e.preventDefault(); deferred=e;
+          txt.textContent='Instale o painel no seu celular para abrir rápido, direto da tela inicial.';
+          instBtn.style.display='block'; banner.style.display='block';
+        });
+        instBtn.onclick=async()=>{ if(!deferred) return; deferred.prompt();
+          try{ const r=await deferred.userChoice; if(r.outcome==='accepted') banner.style.display='none'; }catch(e){}
+          deferred=null; };
+      }
+    })();
 
     checkSession();
   })();
