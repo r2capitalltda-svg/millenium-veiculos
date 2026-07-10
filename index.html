@@ -31,7 +31,7 @@
   }
   *{box-sizing:border-box;margin:0;padding:0;}
   html,body{overflow-x:hidden;max-width:100%;}
-  body{font-family:var(--font-body);color:var(--text);background:var(--bg);line-height:1.6;}
+  body{font-family:var(--font-body);color:var(--text);background:var(--bg);line-height:1.6;touch-action:manipulation;}
   img{display:block;max-width:100%;}
   a{color:inherit;text-decoration:none;}
   .container{max-width:1180px;margin:0 auto;padding:0 20px;}
@@ -247,6 +247,7 @@
     <div class="head-inner">
       <button class="hamburger" id="hamburger" aria-label="Abrir menu"><span></span><span></span><span></span></button>
       <a href="#" class="head-logo" id="headLogo">
+        <img id="headLogoImg" alt="" style="display:none;height:52px;width:auto;object-fit:contain;">
         <span class="name" id="logoName">Millenium Veículos</span>
       </a>
       <div class="head-tools">
@@ -410,17 +411,22 @@
       if(s.font_title) r.setProperty('--font-title', `'${s.font_title}',sans-serif`);
       if(s.font_body) r.setProperty('--font-body', `'${s.font_body}',sans-serif`);
 
+      const setTxt=(id,v)=>{const n=el(id); if(n) n.textContent=v;};
+      const setHtml=(id,v)=>{const n=el(id); if(n) n.innerHTML=v;};
       document.title = s.store_name || 'Millenium Veículos';
-      el('logoName').textContent = s.store_name || 'Millenium Veículos';
-      el('footName').textContent = s.store_name || 'Millenium Veículos';
-      // Logo (com tamanho personalizável)
+      setTxt('logoName', s.store_name || 'Millenium Veículos');
+      setTxt('footName', s.store_name || 'Millenium Veículos');
+      // Logo (com tamanho personalizável) — sem destruir o texto do logo
       const logoH = Number(s.logo_size)||52;
+      const logoImg=el('headLogoImg'), logoTxt=el('logoName');
       if(s.logo_url){
-        el('headLogo').innerHTML = `<img src="${s.logo_url}" alt="${s.store_name||''}" style="height:${logoH}px;">`;
+        if(logoImg){ logoImg.src=s.logo_url; logoImg.alt=s.store_name||''; logoImg.style.height=logoH+'px'; logoImg.style.display='block'; }
+        if(logoTxt) logoTxt.style.display='none';
       } else {
-        el('logoName').style.fontSize = Math.max(14, Math.round(logoH*0.38)) + 'px';
+        if(logoImg) logoImg.style.display='none';
+        if(logoTxt){ logoTxt.style.display=''; logoTxt.style.fontSize=Math.max(14, Math.round(logoH*0.38))+'px'; }
       }
-      if(s.favicon_url){ el('favicon').href = s.favicon_url; }
+      if(s.favicon_url){ const f=el('favicon'); if(f) f.href = s.favicon_url; }
       // Endereço no cabeçalho (desktop) e no menu (mobile)
       const addrHtml = (s.address?`📍 ${s.address}`:'') + (s.opening_hours?`<br>🕒 ${s.opening_hours}`:'');
       el('headAddress').innerHTML = addrHtml;
@@ -648,8 +654,10 @@
         .subscribe();
     }
     (async()=>{
-      try{ const c=JSON.parse(localStorage.getItem('mv_settings')||'null'); if(c) applySettings(c); }catch(e){}
-      await loadSettings(); await loadCars(); subscribeRealtime();
+      try{ const c=JSON.parse(localStorage.getItem('mv_settings')||'null'); if(c) applySettings(c); }catch(e){ console.error('cache',e); }
+      try{ await loadSettings(); }catch(e){ console.error('settings',e); }
+      try{ await loadCars(); }catch(e){ console.error('cars',e); }
+      subscribeRealtime();
     })();
   })();
   </script>
