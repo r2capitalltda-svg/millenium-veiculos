@@ -43,6 +43,12 @@
   .head-inner{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 20px;max-width:1180px;margin:0 auto;}
   .head-logo{display:flex;align-items:center;gap:10px;flex:0 0 auto;}
   .head-logo img{height:52px;width:auto;object-fit:contain;}
+  .logo-mob{display:none;}
+  /* Banner clicável */
+  .promo-banner{display:block;width:100%;line-height:0;}
+  .promo-banner img{width:100%;object-fit:cover;display:block;}
+  .promo-desk{height:var(--banner-h,220px);}
+  .promo-mob{display:none;}
   .head-logo .name{font-family:var(--font-title);font-weight:800;font-size:20px;color:var(--primary);white-space:nowrap;}
   .head-tools{display:flex;align-items:center;gap:18px;flex:1 1 auto;justify-content:flex-end;}
   .head-search{position:relative;flex:0 1 320px;}
@@ -58,7 +64,10 @@
     .head-inner{display:grid;grid-template-columns:38px 1fr 38px;align-items:center;gap:6px;padding:6px 14px;}
     .hamburger{display:flex;justify-self:start;}
     .head-logo{justify-self:center;}
-    .head-logo img{height:36px!important;}
+    .logo-desk{display:none!important;}
+    .logo-mob{display:inline-block;}
+    .promo-desk{display:none;}
+    .promo-mob{display:block;height:var(--banner-h-m,160px);}
     .head-logo .name{font-size:16px;}
     .head-tools{display:none;}
     .mobile-menu{display:none;grid-column:1 / -1;flex-direction:column;gap:14px;padding:8px 20px 18px;border-top:1px solid var(--line);}
@@ -247,7 +256,8 @@
     <div class="head-inner">
       <button class="hamburger" id="hamburger" aria-label="Abrir menu"><span></span><span></span><span></span></button>
       <a href="#" class="head-logo" id="headLogo">
-        <img id="headLogoImg" alt="" style="display:none;height:52px;width:auto;object-fit:contain;">
+        <img id="headLogoImg" class="logo-desk" alt="" style="display:none;width:auto;object-fit:contain;">
+        <img id="headLogoImgMobile" class="logo-mob" alt="" style="display:none;width:auto;object-fit:contain;">
         <span class="name" id="logoName">Millenium Veículos</span>
       </a>
       <div class="head-tools">
@@ -270,6 +280,12 @@
       </div>
     </div>
   </header>
+
+  <!-- BANNER CLICÁVEL -->
+  <a id="promoBanner" class="promo-banner" rel="noopener" style="display:none;">
+    <img id="promoImgDesk" class="promo-desk" alt="Millenium Veículos">
+    <img id="promoImgMob" class="promo-mob" alt="Millenium Veículos">
+  </a>
 
   <!-- ESTOQUE -->
   <section class="section" id="estoque">
@@ -416,15 +432,27 @@
       document.title = s.store_name || 'Millenium Veículos';
       setTxt('logoName', s.store_name || 'Millenium Veículos');
       setTxt('footName', s.store_name || 'Millenium Veículos');
-      // Logo (com tamanho personalizável) — sem destruir o texto do logo
-      const logoH = Number(s.logo_size)||52;
-      const logoImg=el('headLogoImg'), logoTxt=el('logoName');
-      if(s.logo_url){
-        if(logoImg){ logoImg.src=s.logo_url; logoImg.alt=s.store_name||''; logoImg.style.height=logoH+'px'; logoImg.style.display='block'; }
-        if(logoTxt) logoTxt.style.display='none';
-      } else {
-        if(logoImg) logoImg.style.display='none';
-        if(logoTxt){ logoTxt.style.display=''; logoTxt.style.fontSize=Math.max(14, Math.round(logoH*0.38))+'px'; }
+      // Logo por dispositivo (computador / celular) — sem destruir o texto
+      const sizeD=Number(s.logo_size)||52, sizeM=Number(s.logo_size_mobile)||36;
+      const urlD=s.logo_url, urlM=s.logo_url_mobile||s.logo_url;
+      const logoD=el('headLogoImg'), logoM=el('headLogoImgMobile'), logoTxt=el('logoName');
+      const anyLogo=urlD||urlM;
+      if(logoD){ logoD.src=urlD||urlM||''; logoD.alt=s.store_name||''; logoD.style.height=sizeD+'px'; logoD.style.display=anyLogo?'':'none'; }
+      if(logoM){ logoM.src=urlM||urlD||''; logoM.alt=s.store_name||''; logoM.style.height=sizeM+'px'; logoM.style.display=anyLogo?'':'none'; }
+      if(logoTxt){ logoTxt.style.display=anyLogo?'none':''; if(!anyLogo) logoTxt.style.fontSize=Math.max(14,Math.round(sizeD*0.38))+'px'; }
+      // Banner clicável por dispositivo
+      const pb=el('promoBanner');
+      if(pb){
+        const bD=s.banner_image_url, bM=s.banner_image_url_mobile||s.banner_image_url;
+        if(bD||bM){
+          el('promoImgDesk').src=bD||bM; el('promoImgMob').src=bM||bD;
+          r.setProperty('--banner-h',(Number(s.banner_height)||220)+'px');
+          r.setProperty('--banner-h-m',(Number(s.banner_height_mobile)||160)+'px');
+          const link=s.banner_button_link;
+          if(link){ pb.href=link; pb.setAttribute('target','_blank'); pb.style.cursor='pointer'; }
+          else { pb.removeAttribute('href'); pb.style.cursor='default'; }
+          pb.style.display='block';
+        } else { pb.style.display='none'; }
       }
       if(s.favicon_url){ const f=el('favicon'); if(f) f.href = s.favicon_url; }
       // Endereço no cabeçalho (desktop) e no menu (mobile)

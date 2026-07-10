@@ -63,6 +63,8 @@
   .row{margin-bottom:14px;}
   .row label{display:block;font-size:13px;font-weight:600;margin-bottom:5px;}
   .row input,.row select,.row textarea{width:100%;padding:11px;border:1.5px solid var(--line);border-radius:10px;}
+  .row input[type=range]{padding:0;border:none;height:30px;width:100%;accent-color:var(--primary);cursor:pointer;}
+  .row label b{color:var(--primary);}
   .row textarea{min-height:80px;resize:vertical;}
   .two{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
   @media(max-width:520px){.two{grid-template-columns:1fr;}}
@@ -175,12 +177,24 @@
     <!-- APARÊNCIA -->
     <div class="page" id="p-aparencia">
       <div class="panel">
-        <h3>Logomarca e ícone</h3>
-        <div class="row"><label>Logo (imagem)</label><div id="logoPrev"></div>
-          <input type="file" accept="image/*" id="logoFile"></div>
-        <div class="row"><label>Tamanho da logo (altura em pixels)</label>
-          <input type="number" data-k="logo_size" min="20" max="160" step="1" placeholder="52">
-          <span class="muted">Padrão: 52. Quanto maior o número, maior a logo.</span></div>
+        <h3>Logomarca — Computador 🖥️</h3>
+        <div class="row"><label>Logo (computador)</label><div id="logoPrev"></div>
+          <input type="file" accept="image/*" id="logoFile">
+          <span class="muted">Tamanho ideal: imagem larga ~400×120px, PNG com fundo transparente.</span></div>
+        <div class="row"><label>Tamanho da logo no computador: <b id="logoSizeVal">52</b> px</label>
+          <input type="range" class="slider" data-k="logo_size" id="logoSize" min="28" max="120" step="1" value="52"
+            oninput="document.getElementById('logoSizeVal').textContent=this.value; var i=document.querySelector('#logoPrev img'); if(i)i.style.height=this.value+'px';">
+          <span class="muted">Sugestão ideal: entre 48 e 56.</span></div>
+      </div>
+      <div class="panel">
+        <h3>Logomarca — Celular 📱</h3>
+        <div class="row"><label>Logo (celular)</label><div id="logoPrevMobile"></div>
+          <input type="file" accept="image/*" id="logoFileMobile">
+          <span class="muted">Tamanho ideal: ~300×100px, PNG com fundo transparente. Se não enviar, usa a do computador.</span></div>
+        <div class="row"><label>Tamanho da logo no celular: <b id="logoSizeMobileVal">36</b> px</label>
+          <input type="range" class="slider" data-k="logo_size_mobile" id="logoSizeMobile" min="22" max="90" step="1" value="36"
+            oninput="document.getElementById('logoSizeMobileVal').textContent=this.value; var i=document.querySelector('#logoPrevMobile img'); if(i)i.style.height=this.value+'px';">
+          <span class="muted">Sugestão ideal: entre 34 e 40.</span></div>
         <div class="row"><label>Favicon (ícone da aba)</label><input type="file" accept="image/*" id="faviconFile"></div>
       </div>
       <div class="panel">
@@ -200,13 +214,28 @@
         <p class="muted">Fontes do Google Fonts.</p>
       </div>
       <div class="panel">
-        <h3>Banner</h3>
-        <div class="row"><label>Imagem do banner</label><input type="file" accept="image/*" id="bannerFile"><div id="bannerPrev" style="margin-top:8px;"></div></div>
-        <div class="row"><label>Texto do banner</label><input data-k="banner_text"></div>
-        <div class="two">
-          <div class="row"><label>Texto do botão</label><input data-k="banner_button_text"></div>
-          <div class="row"><label>Link do botão</label><input data-k="banner_button_link"></div>
-        </div>
+        <h3>Banner — Computador 🖥️</h3>
+        <p class="muted" style="margin-bottom:10px;">Faixa clicável que aparece logo abaixo do cabeçalho.</p>
+        <div class="row"><label>Imagem do banner (computador)</label>
+          <input type="file" accept="image/*" id="bannerFile"><div id="bannerPrev" style="margin-top:8px;"></div>
+          <span class="muted">Tamanho ideal: imagem larga ~1600×400px.</span></div>
+        <div class="row"><label>Altura do banner no computador: <b id="bannerHVal">220</b> px</label>
+          <input type="range" class="slider" data-k="banner_height" id="bannerH" min="80" max="500" step="5" value="220"
+            oninput="document.getElementById('bannerHVal').textContent=this.value; var i=document.querySelector('#bannerPrev img'); if(i)i.style.height=this.value+'px';">
+          <span class="muted">Sugestão ideal: entre 180 e 260.</span></div>
+      </div>
+      <div class="panel">
+        <h3>Banner — Celular 📱</h3>
+        <div class="row"><label>Imagem do banner (celular)</label>
+          <input type="file" accept="image/*" id="bannerFileMobile"><div id="bannerPrevMobile" style="margin-top:8px;"></div>
+          <span class="muted">Tamanho ideal: ~800×600px (mais quadrada). Se não enviar, usa a do computador.</span></div>
+        <div class="row"><label>Altura do banner no celular: <b id="bannerHMobileVal">160</b> px</label>
+          <input type="range" class="slider" data-k="banner_height_mobile" id="bannerHMobile" min="80" max="400" step="5" value="160"
+            oninput="document.getElementById('bannerHMobileVal').textContent=this.value; var i=document.querySelector('#bannerPrevMobile img'); if(i)i.style.height=this.value+'px';">
+          <span class="muted">Sugestão ideal: entre 140 e 200.</span></div>
+        <div class="row"><label>Link ao clicar no banner (opcional)</label>
+          <input data-k="banner_button_link" placeholder="https://...  (ou deixe vazio)">
+          <span class="muted">Para onde vai ao tocar no banner. Ex: link de uma promoção ou seu WhatsApp.</span></div>
       </div>
       <button class="btn save-btn" onclick="saveSettings()">Salvar aparência</button>
     </div>
@@ -355,10 +384,17 @@
         const k=inp.dataset.k; let v=settings[k];
         if(inp.type==='color'){ inp.value=v||'#000000'; }
         else if(k==='show_map'){ inp.value=String(v!==false); }
+        else if(inp.type==='range'){ if(v!=null&&v!=='') inp.value=v; }
         else { inp.value=(v==null?'':v); }
       });
-      if(settings.logo_url) el('logoPrev').innerHTML=`<img src="${settings.logo_url}" style="height:50px;margin-bottom:6px;">`;
-      if(settings.banner_image_url) el('bannerPrev').innerHTML=`<img src="${settings.banner_image_url}" style="height:70px;border-radius:8px;">`;
+      const ls=settings.logo_size||52, lsm=settings.logo_size_mobile||36, bh=settings.banner_height||220, bhm=settings.banner_height_mobile||160;
+      if(settings.logo_url) el('logoPrev').innerHTML=`<img src="${settings.logo_url}" style="height:${ls}px;margin-bottom:6px;">`;
+      const lm=settings.logo_url_mobile||settings.logo_url;
+      if(lm) el('logoPrevMobile').innerHTML=`<img src="${lm}" style="height:${lsm}px;margin-bottom:6px;">`;
+      if(settings.banner_image_url) el('bannerPrev').innerHTML=`<img src="${settings.banner_image_url}" style="width:100%;height:${bh}px;object-fit:cover;border-radius:8px;">`;
+      const bm=settings.banner_image_url_mobile||settings.banner_image_url;
+      if(bm) el('bannerPrevMobile').innerHTML=`<img src="${bm}" style="width:100%;height:${bhm}px;object-fit:cover;border-radius:8px;">`;
+      [['logoSize','logoSizeVal'],['logoSizeMobile','logoSizeMobileVal'],['bannerH','bannerHVal'],['bannerHMobile','bannerHMobileVal']].forEach(([s,l])=>{const se=el(s),le=el(l);if(se&&le)le.textContent=se.value;});
       renderTiers();
     }
     function parseTiers(){
@@ -403,7 +439,7 @@
         const k=inp.dataset.k; let v=inp.value;
         if(k==='show_map') v=(v==='true');
         if(k==='interest_rate') v=parseFloat(v)||0;
-        if(k==='logo_size') v=parseInt(v)||52;
+        if(['logo_size','logo_size_mobile','banner_height','banner_height_mobile'].includes(k)) v=parseInt(v)||null;
         patch[k]=v;
       });
       patch.updated_at=new Date().toISOString();
@@ -422,7 +458,9 @@
     }
     el('logoFile').onchange=async e=>{const f=e.target.files[0];if(!f)return;toast('Enviando...');const u=await uploadTo(f,'brand');if(u){await sb.from('site_settings').update({logo_url:u}).eq('id',1);toast('Logo atualizada ✓');loadSettings();}};
     el('faviconFile').onchange=async e=>{const f=e.target.files[0];if(!f)return;toast('Enviando...');const u=await uploadTo(f,'brand');if(u){await sb.from('site_settings').update({favicon_url:u}).eq('id',1);toast('Favicon atualizado ✓');loadSettings();}};
-    el('bannerFile').onchange=async e=>{const f=e.target.files[0];if(!f)return;toast('Enviando...');const u=await uploadTo(f,'banner');if(u){await sb.from('site_settings').update({banner_image_url:u}).eq('id',1);toast('Banner atualizado ✓');loadSettings();}};
+    el('bannerFile').onchange=async e=>{const f=e.target.files[0];if(!f)return;toast('Enviando...');const u=await uploadTo(f,'banner');if(u){await sb.from('site_settings').update({banner_image_url:u}).eq('id',1);toast('Banner (computador) atualizado ✓');loadSettings();}};
+    el('logoFileMobile').onchange=async e=>{const f=e.target.files[0];if(!f)return;toast('Enviando...');const u=await uploadTo(f,'brand');if(u){await sb.from('site_settings').update({logo_url_mobile:u}).eq('id',1);toast('Logo do celular atualizada ✓');loadSettings();}};
+    el('bannerFileMobile').onchange=async e=>{const f=e.target.files[0];if(!f)return;toast('Enviando...');const u=await uploadTo(f,'banner');if(u){await sb.from('site_settings').update({banner_image_url_mobile:u}).eq('id',1);toast('Banner do celular atualizado ✓');loadSettings();}};
 
     // ---------- CARS ----------
     async function loadCars(){
