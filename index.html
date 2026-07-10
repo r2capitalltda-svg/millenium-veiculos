@@ -67,6 +67,32 @@
   .section{padding:56px 0;}
   .section-title{text-align:center;margin-bottom:8px;font-size:30px;}
   .section-sub{text-align:center;color:var(--muted);margin-bottom:36px;}
+
+  /* ---------- COMPRAMOS SEU CARRO ---------- */
+  .buy-section{padding:6px 0 56px;}
+  .buy-card{background:linear-gradient(135deg,var(--primary),var(--secondary));border-radius:20px;
+    padding:46px 32px;text-align:center;color:#fff;box-shadow:0 14px 34px rgba(26,86,219,.22);}
+  .buy-tag{display:inline-block;background:rgba(255,255,255,.16);color:#fff;font-size:12px;font-weight:700;
+    text-transform:uppercase;letter-spacing:.08em;padding:6px 15px;border-radius:20px;margin-bottom:16px;}
+  .buy-title{color:#fff;font-size:30px;margin-bottom:12px;}
+  .buy-lead{font-size:18px;color:#e6edff;max-width:640px;margin:0 auto 28px;line-height:1.5;}
+  .buy-conds{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-bottom:32px;}
+  .buy-cond{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.12);
+    border:1px solid rgba(255,255,255,.28);padding:11px 18px;border-radius:12px;font-size:14.5px;font-weight:600;}
+  .buy-cond .chk{color:#5ee08a;font-weight:800;}
+  .buy-btn{display:inline-block;background:var(--button);color:#fff;padding:15px 36px;border-radius:12px;
+    font-weight:700;font-size:16px;text-transform:uppercase;letter-spacing:.03em;
+    box-shadow:0 6px 18px rgba(22,163,74,.38);transition:transform .15s,filter .15s;}
+  .buy-btn:hover{transform:translateY(-2px);filter:brightness(1.06);}
+  @media(max-width:600px){
+    .buy-section{padding:0 0 40px;}
+    .buy-card{padding:32px 20px;border-radius:16px;}
+    .buy-title{font-size:21px;}
+    .buy-lead{font-size:15.5px;}
+    .buy-conds{flex-direction:column;gap:10px;}
+    .buy-cond{justify-content:center;}
+    .buy-btn{width:100%;}
+  }
   .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
   @media(max-width:960px){.grid{grid-template-columns:repeat(2,1fr);}}
   @media(max-width:600px){.grid{grid-template-columns:repeat(2,1fr);gap:12px;}}
@@ -247,6 +273,23 @@
     </div>
   </section>
 
+  <!-- COMPRAMOS SEU CARRO -->
+  <section class="buy-section">
+    <div class="container">
+      <div class="buy-card">
+        <span class="buy-tag">Compramos seu carro</span>
+        <h2 class="buy-title">Compramos o seu carro usado</h2>
+        <p class="buy-lead">Pagamento na hora, à vista e com preço justo de avaliação. Traga seu veículo e faça uma proposta com a gente.</p>
+        <div class="buy-conds">
+          <div class="buy-cond"><span class="chk">✓</span> Até 14 anos de uso</div>
+          <div class="buy-cond"><span class="chk">✓</span> Veículos completos</div>
+          <div class="buy-cond"><span class="chk">✓</span> Quilometragem média baixa</div>
+        </div>
+        <a id="sellWa" class="buy-btn" href="#" target="_blank" rel="noopener">Quero vender meu carro</a>
+      </div>
+    </div>
+  </section>
+
   <!-- MAPA -->
   <section id="mapSection">
     <div class="map-wrap" id="mapWrap">
@@ -384,6 +427,7 @@
       // WhatsApp
       const wa = waLink('');
       const fwa = el('footWa'); fwa.href = wa; fwa.textContent = s.whatsapp ? '💬 '+formatPhone(s.whatsapp) : '';
+      const sw = el('sellWa'); if(sw){ sw.href = waLink('Quero vender meu carro usado para a Millenium. Podemos avaliar?'); }
       // Rodapé
       el('footAbout').textContent = s.about_text || 'Fundada em 1999, a Millenium começou como loja de som e com apenas 1 carro. Hoje é uma empresa sólida e referência em todo o Vale do Aço.';
       el('footAddr').textContent = s.address ? '📍 '+s.address : '';
