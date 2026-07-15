@@ -392,8 +392,9 @@
       const lm=settings.logo_url_mobile||settings.logo_url;
       if(lm) el('logoPrevMobile').innerHTML=`<img src="${lm}" style="height:${lsm}px;margin-bottom:6px;">`;
       if(settings.banner_image_url) el('bannerPrev').innerHTML=`<img src="${settings.banner_image_url}" style="width:100%;height:${bh}px;object-fit:cover;border-radius:8px;">`;
-      const bm=settings.banner_image_url_mobile||settings.banner_image_url;
+      const bm=settings.banner_image_url_mobile;
       if(bm) el('bannerPrevMobile').innerHTML=`<img src="${bm}" style="width:100%;height:${bhm}px;object-fit:cover;border-radius:8px;">`;
+      else el('bannerPrevMobile').innerHTML='';
       [['logoSize','logoSizeVal'],['logoSizeMobile','logoSizeMobileVal'],['bannerH','bannerHVal'],['bannerHMobile','bannerHMobileVal']].forEach(([s,l])=>{const se=el(s),le=el(l);if(se&&le)le.textContent=se.value;});
       renderTiers();
     }

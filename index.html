@@ -45,10 +45,11 @@
   .head-logo img{height:52px;width:auto;object-fit:contain;}
   .logo-mob{display:none;}
   /* Banner clicável */
-  .promo-banner{display:block;width:100%;line-height:0;}
-  .promo-banner img{width:100%;object-fit:cover;display:block;}
-  .promo-desk{height:var(--banner-h,220px);}
-  .promo-mob{display:none;}
+  .promo-banner{display:none;width:100%;line-height:0;}
+  .promo-banner img{width:100%;object-fit:cover;}
+  .promo-banner .promo-desk{display:block;height:var(--banner-h,220px);}
+  .promo-banner .promo-mob{display:none;height:var(--banner-h-m,160px);}
+  @media(min-width:761px){ .promo-banner.has-desk{display:block;} }   /* computador: só se tiver banner de computador */
   .head-logo .name{font-family:var(--font-title);font-weight:800;font-size:20px;color:var(--primary);white-space:nowrap;}
   .head-tools{display:flex;align-items:center;gap:18px;flex:1 1 auto;justify-content:flex-end;}
   .head-search{position:relative;flex:0 1 320px;}
@@ -66,8 +67,9 @@
     .head-logo{justify-self:center;}
     .logo-desk{display:none!important;}
     .logo-mob{display:inline-block;}
-    .promo-desk{display:none;}
-    .promo-mob{display:block;height:var(--banner-h-m,160px);}
+    .promo-banner.has-mob{display:block;}
+    .promo-banner .promo-desk{display:none;}
+    .promo-banner .promo-mob{display:block;}
     .head-logo .name{font-size:16px;}
     .head-tools{display:none;}
     .mobile-menu{display:none;grid-column:1 / -1;flex-direction:column;gap:14px;padding:8px 20px 18px;border-top:1px solid var(--line);}
@@ -443,16 +445,17 @@
       // Banner clicável por dispositivo
       const pb=el('promoBanner');
       if(pb){
-        const bD=s.banner_image_url, bM=s.banner_image_url_mobile||s.banner_image_url;
-        if(bD||bM){
-          el('promoImgDesk').src=bD||bM; el('promoImgMob').src=bM||bD;
-          r.setProperty('--banner-h',(Number(s.banner_height)||220)+'px');
-          r.setProperty('--banner-h-m',(Number(s.banner_height_mobile)||160)+'px');
-          const link=s.banner_button_link;
-          if(link){ pb.href=link; pb.setAttribute('target','_blank'); pb.style.cursor='pointer'; }
-          else { pb.removeAttribute('href'); pb.style.cursor='default'; }
-          pb.style.display='block';
-        } else { pb.style.display='none'; }
+        const bD=s.banner_image_url||'', bM=s.banner_image_url_mobile||'';   // independentes, sem reserva
+        pb.classList.toggle('has-desk', !!bD);
+        pb.classList.toggle('has-mob', !!bM);
+        if(bD) el('promoImgDesk').src=bD;
+        if(bM) el('promoImgMob').src=bM;
+        r.setProperty('--banner-h',(Number(s.banner_height)||220)+'px');
+        r.setProperty('--banner-h-m',(Number(s.banner_height_mobile)||160)+'px');
+        const link=s.banner_button_link;
+        if(link){ pb.href=link; pb.setAttribute('target','_blank'); pb.style.cursor='pointer'; }
+        else { pb.removeAttribute('href'); pb.style.cursor='default'; }
+        pb.style.display='';   // o CSS decide conforme o aparelho (has-desk / has-mob)
       }
       if(s.favicon_url){ const f=el('favicon'); if(f) f.href = s.favicon_url; }
       // Endereço no cabeçalho (desktop) e no menu (mobile)
