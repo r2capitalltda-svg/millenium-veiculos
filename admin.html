@@ -218,21 +218,13 @@
         <p class="muted" style="margin-bottom:10px;">Faixa clicável que aparece logo abaixo do cabeçalho.</p>
         <div class="row"><label>Imagem do banner (computador)</label>
           <input type="file" accept="image/*" id="bannerFile"><div id="bannerPrev" style="margin-top:8px;"></div>
-          <span class="muted">Tamanho ideal: imagem larga ~1600×400px.</span></div>
-        <div class="row"><label>Altura do banner no computador: <b id="bannerHVal">220</b> px</label>
-          <input type="range" class="slider" data-k="banner_height" id="bannerH" min="80" max="500" step="5" value="220"
-            oninput="document.getElementById('bannerHVal').textContent=this.value; var i=document.querySelector('#bannerPrev img'); if(i)i.style.height=this.value+'px';">
-          <span class="muted">Sugestão ideal: entre 180 e 260.</span></div>
+          <span class="muted">A imagem aparece inteira, na largura toda, sem cortar. Proporção ideal: larga, tipo <b>1600×400px (4:1)</b>. A altura se ajusta sozinha.</span></div>
       </div>
       <div class="panel">
         <h3>Banner — Celular 📱</h3>
         <div class="row"><label>Imagem do banner (celular)</label>
           <input type="file" accept="image/*" id="bannerFileMobile"><div id="bannerPrevMobile" style="margin-top:8px;"></div>
-          <span class="muted">Tamanho ideal: ~800×600px (mais quadrada). Se não enviar, usa a do computador.</span></div>
-        <div class="row"><label>Altura do banner no celular: <b id="bannerHMobileVal">160</b> px</label>
-          <input type="range" class="slider" data-k="banner_height_mobile" id="bannerHMobile" min="80" max="400" step="5" value="160"
-            oninput="document.getElementById('bannerHMobileVal').textContent=this.value; var i=document.querySelector('#bannerPrevMobile img'); if(i)i.style.height=this.value+'px';">
-          <span class="muted">Sugestão ideal: entre 140 e 200.</span></div>
+          <span class="muted">A imagem aparece inteira, sem cortar. Proporção ideal: mais quadrada, tipo <b>1080×720px</b>. É independente do computador — se não enviar, o celular fica sem banner.</span></div>
         <div class="row"><label>Link ao clicar no banner (opcional)</label>
           <input data-k="banner_button_link" placeholder="https://...  (ou deixe vazio)">
           <span class="muted">Para onde vai ao tocar no banner. Ex: link de uma promoção ou seu WhatsApp.</span></div>
@@ -391,9 +383,9 @@
       if(settings.logo_url) el('logoPrev').innerHTML=`<img src="${settings.logo_url}" style="height:${ls}px;margin-bottom:6px;">`;
       const lm=settings.logo_url_mobile||settings.logo_url;
       if(lm) el('logoPrevMobile').innerHTML=`<img src="${lm}" style="height:${lsm}px;margin-bottom:6px;">`;
-      if(settings.banner_image_url) el('bannerPrev').innerHTML=`<img src="${settings.banner_image_url}" style="width:100%;height:${bh}px;object-fit:cover;border-radius:8px;">`;
+      if(settings.banner_image_url) el('bannerPrev').innerHTML=`<img src="${settings.banner_image_url}" style="width:100%;height:auto;border-radius:8px;">`;
       const bm=settings.banner_image_url_mobile;
-      if(bm) el('bannerPrevMobile').innerHTML=`<img src="${bm}" style="width:100%;height:${bhm}px;object-fit:cover;border-radius:8px;">`;
+      if(bm) el('bannerPrevMobile').innerHTML=`<img src="${bm}" style="width:100%;height:auto;border-radius:8px;">`;
       else el('bannerPrevMobile').innerHTML='';
       [['logoSize','logoSizeVal'],['logoSizeMobile','logoSizeMobileVal'],['bannerH','bannerHVal'],['bannerHMobile','bannerHMobileVal']].forEach(([s,l])=>{const se=el(s),le=el(l);if(se&&le)le.textContent=se.value;});
       renderTiers();
