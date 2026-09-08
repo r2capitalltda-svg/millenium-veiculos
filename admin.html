@@ -445,9 +445,9 @@
     async function uploadTo(file,prefix){
       const ext=(file.name.split('.').pop()||'png').toLowerCase();
       const path=`${prefix}/${Date.now()}.${ext}`;
-      const {error}=await sb.storage.from(CFG.STORAGE_BUCKET).upload(path,file,{upsert:true});
+      const s=(await sb.auth.getSession()).data.session; if(!s){toast('Sessao expirada. Entre novamente.');return null;} let error=null,novaUrl=null; try{const r=await fetch('https://midia.milleniumveiculosipatinga.com.br/upload?path='+encodeURIComponent(path),{method:'POST',headers:{Authorization:'Bearer '+s.access_token,'Content-Type':file.type||'application/octet-stream'},body:file}); const j=await r.json(); if(!r.ok){error={message:j.erro||('codigo '+r.status)};} else {novaUrl=j.url;} }catch(e){error={message:e.message};}
       if(error){toast('Erro no upload: '+error.message);return null;}
-      return sb.storage.from(CFG.STORAGE_BUCKET).getPublicUrl(path).data.publicUrl;
+      return novaUrl;
     }
     el('logoFile').onchange=async e=>{const f=e.target.files[0];if(!f)return;toast('Enviando...');const u=await uploadTo(f,'brand');if(u){await sb.from('site_settings').update({logo_url:u}).eq('id',1);toast('Logo atualizada ✓');loadSettings();}};
     el('faviconFile').onchange=async e=>{const f=e.target.files[0];if(!f)return;toast('Enviando...');const u=await uploadTo(f,'brand');if(u){await sb.from('site_settings').update({favicon_url:u}).eq('id',1);toast('Favicon atualizado ✓');loadSettings();}};
