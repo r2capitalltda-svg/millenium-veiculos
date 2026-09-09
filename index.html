@@ -499,7 +499,7 @@
     // ---------- CARROSSEL ----------
     function carouselHTML(photos, id){
       if(!photos || !photos.length){ return `<div class="carousel"><div class="noimg">Sem foto</div></div>`; }
-      const slides = photos.map(p=>`<div class="slide"><img src="${p.url}" alt=""></div>`).join('');
+      const slides = photos.map((p,i)=>`<div class="slide"><img src="${p.url}" alt="" loading="${i?'lazy':'eager'}" decoding="async" fetchpriority="${i?'low':'high'}"></div>`).join('');
       const dots = photos.map((_,i)=>`<span class="${i===0?'on':''}"></span>`).join('');
       const nav = photos.length>1 ? `
         <button class="nav prev" onclick="event.stopPropagation();slide('${id}',-1)">‹</button>
