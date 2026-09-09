@@ -499,7 +499,7 @@
     // ---------- CARROSSEL ----------
     function carouselHTML(photos, id){
       if(!photos || !photos.length){ return `<div class="carousel"><div class="noimg">Sem foto</div></div>`; }
-      const slides = photos.map((p,i)=>`<div class="slide"><img src="${p.url}" alt="" loading="${i?'lazy':'eager'}" decoding="async" fetchpriority="${i?'low':'high'}"></div>`).join('');
+      const slides = photos.map((p,i)=>`<div class="slide"><img ${i?'data-src':'src'}="${p.url}" alt="" decoding="async" fetchpriority="${i?'low':'high'}"></div>`).join('');
       const dots = photos.map((_,i)=>`<span class="${i===0?'on':''}"></span>`).join('');
       const nav = photos.length>1 ? `
         <button class="nav prev" onclick="event.stopPropagation();slide('${id}',-1)">‹</button>
@@ -511,7 +511,7 @@
     window.slide=function(id,dir){
       const c=document.getElementById(id); if(!c)return;
       let idx=parseInt(c.dataset.idx)||0; const n=parseInt(c.dataset.count)||1;
-      idx=(idx+dir+n)%n; c.dataset.idx=idx;
+      idx=(idx+dir+n)%n; c.dataset.idx=idx; const _ims=c.querySelectorAll('.slide img'); [idx,(idx+1)%n].forEach(k=>{const _x=_ims[k]; if(_x&&!_x.getAttribute('src')&&_x.dataset.src)_x.setAttribute('src',_x.dataset.src);});
       c.querySelector('.slides').style.transform=`translateX(-${idx*100}%)`;
       const dots=c.querySelectorAll('.dots span'); dots.forEach((d,i)=>d.classList.toggle('on',i===idx));
     };
